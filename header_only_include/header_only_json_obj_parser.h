@@ -203,7 +203,6 @@ struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*__val)
 				break;
 			case CPCJP_NUM:
 				__tmpn=__tmp.stuff->stuff->num;
-				printf("faggot\n");
 				cpcio_putd_os(__os,__tmpn);
 				break;
 			case CPCJP_STR:
