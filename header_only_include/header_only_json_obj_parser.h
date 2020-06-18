@@ -20,7 +20,7 @@
 #define __cpcjp_is_whitespace(__ch__)((__ch__)==' '||(__ch__)=='\n'||(__ch__)=='\t')
 #define __cpcjp_make_cdh(__helper__,__val__,__status__)do {  __helper__.stuff=__val__;__helper__.status=__status__;  } while (0)
 enum cpcjp_val_types
-{CPCJP_NULL,CPCJP_BOOL,CPCJP_NUM,CPCJP_STR,CPCJP_LIST,CPCJP_OBJ};
+{CPCJP_NULL,CPCJP_BOOL,CPCJP_LIST,CPCJP_NUM,CPCJP_OBJ,CPCJP_STR};
 define_cpcds_um(cpcjp_json_map,struct cppstring,struct __cpcjp_json_val*,str_equal_values,cpcds_hash_str)
 define_cpcds_vector(cpcjp_json_list,cpcjp_json_val)
 struct __cpcjp_json_val
