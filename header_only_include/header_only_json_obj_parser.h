@@ -159,6 +159,50 @@ struct __cpcjp_json_val *cpcjp_nullptr_val(void)
 	val->type = CPCJP_NULL;
 	return val;
 }
+void cpcjp_insert_num_into_obj(struct __cpcjp_json_val *val,const char *key,double n)
+{
+	if(val->type != CPCJP_OBJ)
+	{
+		fprintf(stderr, "Error: Function cpcjp_insert_num_into_obj requires the value to be of object type!\n");
+	}
+	else
+	{
+		cpcds_um_insert_cpcjp_json_map(&val->stuff->obj, mk_from_cstr(key), cpcjp_init_num(n));
+	}
+}
+void cpcjp_insert_bool_into_obj(struct __cpcjp_json_val *val,const char *key,int n)
+{
+	if(val->type != CPCJP_OBJ)
+	{
+		fprintf(stderr, "Error: Function cpcjp_insert_bool_into_obj requires the value to be of object type!\n");
+	}
+	else
+	{
+		cpcds_um_insert_cpcjp_json_map(&val->stuff->obj, mk_from_cstr(key), cpcjp_init_bool(n));
+	}
+}
+void cpcjp_insert_val_into_obj(struct __cpcjp_json_val *obj, const char *key, struct __cpcjp_json_val *val)
+{
+	if(val->type != CPCJP_OBJ)
+	{
+		fprintf(stderr, "Error: Function cpcjp_insert_val_into_obj requires the value to be of object type!\n");
+	}
+	else
+	{
+		cpcds_um_insert_cpcjp_json_map(&obj->stuff->obj, mk_from_cstr(key), val);
+	}
+}
+void cpcjp_insert_null_into_obj(struct __cpcjp_json_val *val, const char *key)
+{
+	if(val->type != CPCJP_OBJ)
+	{
+		fprintf(stderr, "Error: Function cpcjp_insert_null_into_obj requires the value to be of object type!\n");
+	}
+	else
+	{
+		cpcds_um_insert_cpcjp_json_map(&val->stuff->obj, mk_from_cstr(key), cpcjp_nullptr_val());
+	}
+}
 void cpcjp_insert_str_into_obj(struct __cpcjp_json_val *val, const char *key, const char *str)
 {
 	if(val->type != CPCJP_OBJ)
