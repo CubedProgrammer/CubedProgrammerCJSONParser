@@ -111,6 +111,26 @@ struct __cpcjp_json_val *cpcjp_init_obj(void)
 	cpcds_um_insert_cpcjp_json_map(&val->stuff->obj,s,cv);*/
 	return val;
 }
+struct __cpcjp_json_val *cpcjp_init_bool(int v)
+{
+	struct __cpcjp_json_val *val = malloc(sizeof(struct __cpcjp_json_val));
+	val->name = NULL;
+	val->stuff = malloc(sizeof(union iocjv));
+	val->type = CPCJP_BOOL;
+
+	val->stuff->tof = v & 0x00000001;
+	return val;
+}
+struct __cpcjp_json_val *cpcjp_init_num(double v)
+{
+	struct __cpcjp_json_val *val = malloc(sizeof(struct __cpcjp_json_val));
+	val->name = NULL;
+	val->stuff = malloc(sizeof(union iocjv));
+	val->type = CPCJP_NUM;
+
+	val->stuff->num = v;
+	return val;
+}
 struct __cpcjp_json_val *cpcjp_init_list(void)
 {
 	struct __cpcjp_json_val *val = malloc(sizeof(struct __cpcjp_json_val));
@@ -126,9 +146,17 @@ struct __cpcjp_json_val *cpcjp_init_str(const char *str)
 	struct __cpcjp_json_val *val = malloc(sizeof(struct __cpcjp_json_val));
 	val->name = NULL;
 	val->stuff = malloc(sizeof(union iocjv));
-	val->type = CPCJP_LIST;
+	val->type = CPCJP_STR;
 
 	val->stuff->str = mk_from_cstr(str);
+	return val;
+}
+struct __cpcjp_json_val *cpcjp_nullptr_val(void)
+{
+	struct __cpcjp_json_val *val = malloc(sizeof(struct __cpcjp_json_val));
+	val->name = NULL;
+	val->stuff = NULL;
+	val->type = CPCJP_NULL;
 	return val;
 }
 void cpcjp_insert_str_into_obj(struct __cpcjp_json_val *val, const char *key, const char *str)
