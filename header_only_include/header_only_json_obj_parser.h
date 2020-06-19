@@ -53,6 +53,7 @@ struct __cpcjp_dump_helper
 {
 	struct __cpcjp_json_val*stuff;
 	enum __dump_helper_status status;
+	bool is_self_containing;
 };
 define_cpcds_vector(cpcjp_dump_helper,struct __cpcjp_dump_helper)
 typedef struct __cpcjp_json_val*cpcjp_json_val;
@@ -102,13 +103,6 @@ struct __cpcjp_json_val *cpcjp_init_obj(void)
 	val->type = CPCJP_OBJ;
 
 	val->stuff->obj = cpcds_mk_um_empty_cpcjp_json_map();
-	/*struct __cpcjp_json_val *cv = malloc(sizeof(struct __cpcjp_json_val));
-	cv->name = "gay";
-	cv->stuff = malloc(sizeof(union iocjv));
-	cv->type = CPCJP_NUM;
-	cv->stuff->num = 3;
-	cppstring s = mk_from_cstr(cv->name);
-	cpcds_um_insert_cpcjp_json_map(&val->stuff->obj,s,cv);*/
 	return val;
 }
 struct __cpcjp_json_val *cpcjp_init_bool(int v)
@@ -200,12 +194,13 @@ void cpcjp_insert_str_into_obj(struct __cpcjp_json_val *val, const char *key, co
 }
 void cpcjp_insert_val_into_obj(struct __cpcjp_json_val *obj, const char *key, struct __cpcjp_json_val *val)
 {
-	if(val->type != CPCJP_OBJ)
+	if(obj->type != CPCJP_OBJ)
 	{
 		fprintf(stderr, "Error: Function cpcjp_insert_val_into_obj requires the value to be of object type!\n");
 	}
 	else
 	{
+		val->name = key;
 		cpcds_um_insert_cpcjp_json_map(&obj->stuff->obj, mk_from_cstr(key), val);
 	}
 }
@@ -271,6 +266,7 @@ struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*__val)
 	cpcjp_json_num __tmpn;
 	cpcjp_json_list __tmpl;
 	cpcjp_json_obj __tmpo;
+	bool is_self_containing;
 
 	cpcds_umiter_cpcjp_json_map it;
 	while(stk->size > 0)
@@ -285,7 +281,7 @@ struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*__val)
 		{
 			__comma=true;
 		}
-		if(__tmp.stuff->name!=NULL)
+		if(stk->size>0&&__tmp.status==DUMP_HELPER_PENDING&&__tmp.stuff->name!=NULL)
 		{
 			cpcio_putc_os(__os, DQUOTE);
 			cpcio_puts_os(__os,__tmp.stuff->name);
@@ -324,6 +320,10 @@ struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*__val)
 					// add the right square bracket
 					cpcio_putc_os(__os,RSQRBR);
 				}
+				else if(__tmp.is_self_containing)
+				{
+					cpcio_puts_os(__os, "[ ... ]");
+				}
 				else
 				{
 					__tmpl = __tmp.stuff->stuff->list;
@@ -334,6 +334,12 @@ struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*__val)
 					fflush(stdout);
 					for(size_t i = 0; i < __tmpl.size; ++i)
 					{
+						__tmp.is_self_containing = false;
+						for(size_t j = 0;j < stk->size;j++)
+						{
+							if(cpcds_vec_get_at_cpcjp_dump_helper(stk, j).stuff == __tmp.stuff)
+								__tmp.is_self_containing = true;
+						}
 						__cpcjp_make_cdh(__tmp, cpcds_vec_get_at_cpcjp_json_list(&__tmpl,i), DUMP_HELPER_PENDING);
 						cpcds_vec_append_single_cpcjp_dump_helper(stk,__tmp);
 					}
@@ -349,6 +355,10 @@ struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*__val)
 					// add the right brace
 					cpcio_putc_os(__os,RBRACE);
 				}
+				else if(__tmp.is_self_containing)
+				{
+					cpcio_puts_os(__os, "{ ... }");
+				}
 				else
 				{
 					__tmpo = __tmp.stuff->stuff->obj;
@@ -361,7 +371,15 @@ struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*__val)
 					while(!cpcds_um_iter_equal_cpcjp_json_map(it, cpcds_um_iter_end_cpcjp_json_map(&__tmpo)))
 					{
 						__cpcjp_make_cdh(__tmp, cpcds_um_iter_get_cpcjp_json_map(&it).val, DUMP_HELPER_PENDING);
+						__tmp.is_self_containing = false;
+						for(size_t i = 0;i < stk->size;i++)
+						{
+							if(cpcds_vec_get_at_cpcjp_dump_helper(stk, i).stuff == __tmp.stuff)
+								__tmp.is_self_containing = true;
+						}
+
 						cpcds_vec_append_single_cpcjp_dump_helper(stk, __tmp);
+
 						cpcds_um_iter_next_cpcjp_json_map(&it);
 						printf("test %u %u\n",it.dq,cpcds_um_iter_end_cpcjp_json_map(&__tmpo).dq);
 						fflush(stdout);
