@@ -33,6 +33,7 @@ void cpcjp_insert_bool_into_list(struct __cpcjp_json_val*,int);
 void cpcjp_insert_str_into_list(struct __cpcjp_json_val*,const char*);
 void cpcjp_insert_val_into_list(struct __cpcjp_json_val*,struct __cpcjp_json_val*);
 void cpcjp_insert_null_into_list(struct __cpcjp_json_val*);
+void cpcjp_erase_from_obj(struct __cpcjp_json_val*,const char*);
 struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*);
 typedef struct __cpcjp_json_val*cpcjp_json_val;
 typedef struct __cpcjp_json_iter*cpcjp_json_iter;
