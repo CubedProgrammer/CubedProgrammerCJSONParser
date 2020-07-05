@@ -519,7 +519,7 @@ struct __cpcjp_json_val*cpcjp_parse_stream(struct __istream*__is)
 					cpcds_stdprint_cppstr(__curr_obj_name);
 					printf(" is __curr_obj_name\n");
 				}
-				else if(__ch==COMMA)
+				else
 				{
 					__tmpj=(struct __cpcjp_json_val*)malloc(sizeof(struct __cpcjp_json_val));
 					__tmpj->stuff=malloc(sizeof(union iocjv));
@@ -539,9 +539,6 @@ struct __cpcjp_json_val*cpcjp_parse_stream(struct __istream*__is)
 						cpcds_um_insert_cpcjp_json_map((struct cpcds_um_cpcjp_json_map*)__top->stuff->stuff,__curr_obj_name,__tmpj);
 						__tmpj->name=cstr(&__curr_obj_name);
 					}
-				}
-				else
-				{
 					cpcio_ungetc_is(__is);
 				}
 				break;
