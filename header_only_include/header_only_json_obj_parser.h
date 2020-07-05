@@ -281,12 +281,20 @@ struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*__val)
 		{
 			__comma=true;
 		}
+		printf("before %d, %d\n",__tmp.status,__tmp.stuff->type);
+		fflush(stdout);
+		printf("stuff: %d\n",__tmp.stuff->name);
+		fflush(stdout);
 		if(stk->size>0&&__tmp.status==DUMP_HELPER_PENDING&&__tmp.stuff->name!=NULL)
 		{
 			cpcio_putc_os(__os, DQUOTE);
 			cpcio_puts_os(__os,__tmp.stuff->name);
 			cpcio_putc_os(__os, DQUOTE);
 			cpcio_puts_os(__os," : ");
+			printf(__tmp.stuff->name);
+			printf(" %d %d",__tmp.stuff->type,__tmp.stuff);
+			printf(" from name\n");
+			fflush(stdout);
 		}
 		switch(__tmp.stuff->type)
 		{
@@ -305,6 +313,8 @@ struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*__val)
 				}
 				break;
 			case CPCJP_NUM:
+				printf("num: %f\n",__tmp.stuff->stuff->num);
+				fflush(stdout);
 				__tmpn=__tmp.stuff->stuff->num;
 				cpcio_putd_os(__os,__tmpn);
 				break;
@@ -317,6 +327,9 @@ struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*__val)
 			case CPCJP_LIST:
 				if(__tmp.status == DUMP_HELPER_OPENED)
 				{
+					printf(__tmp.stuff->name);
+					printf("type: %d\n",__tmp.status);
+					fflush(stdout);
 					// add the right square bracket
 					cpcio_putc_os(__os,RSQRBR);
 				}
@@ -330,19 +343,24 @@ struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*__val)
 					__tmp.status = DUMP_HELPER_OPENED;
 					cpcds_vec_append_single_cpcjp_dump_helper(stk, __tmp);
 
-					fflush(stdout);
 					for(size_t i = 0; i < __tmpl.size; ++i)
 					{
 						__tmp.is_self_containing = false;
+						__cpcjp_make_cdh(__tmp, cpcds_vec_get_at_cpcjp_json_list(&__tmpl,i), DUMP_HELPER_PENDING);
 						for(size_t j = 0;j < stk->size;j++)
 						{
 							if(cpcds_vec_get_at_cpcjp_dump_helper(stk, j).stuff == __tmp.stuff)
 								__tmp.is_self_containing = true;
 						}
-						__cpcjp_make_cdh(__tmp, cpcds_vec_get_at_cpcjp_json_list(&__tmpl,i), DUMP_HELPER_PENDING);
 						cpcds_vec_append_single_cpcjp_dump_helper(stk,__tmp);
 					}
 
+					if(__tmp.stuff->name)
+					{
+						printf(__tmp.stuff->name);
+						printf("\n");
+						fflush(stdout);
+					}
 					// add the left square bracket
 					cpcio_putc_os(__os,LSQRBR);
 					__comma = false;
@@ -387,6 +405,8 @@ struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*__val)
 				}
 				break;
 		}
+		printf("after %d, %d\n",__tmp.status,__tmp.stuff->type);
+		fflush(stdout);
 	}
 	cpcds_vec_destr_cpcjp_dump_helper(stk);
 	struct cppstring __str=mk_from_cstr(cpcio_oss_str(__os));
@@ -504,6 +524,7 @@ struct __cpcjp_json_val*cpcjp_parse_stream(struct __istream*__is)
 					__tmpj=(struct __cpcjp_json_val*)malloc(sizeof(struct __cpcjp_json_val));
 					__tmpj->stuff=malloc(sizeof(union iocjv));
 					__tmpj->stuff->str=__curr_obj_dat;
+					__tmpj->type=CPCJP_STR;
 					cpcds_stdprint_cppstr(__curr_obj_name);
 					printf(" is __curr_obj_name\n");
 					cpcds_stdprint_cppstr(__curr_obj_dat);
@@ -539,6 +560,7 @@ struct __cpcjp_json_val*cpcjp_parse_stream(struct __istream*__is)
 				{
 					if(__top->stuff->type==CPCJP_LIST)
 					{
+						__tmph->stuff->name = NULL;
 						cpcds_vec_append_single_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)__top->stuff->stuff,__tmph->stuff);
 					}
 					else if(__top->stuff->type==CPCJP_OBJ)
@@ -570,6 +592,7 @@ struct __cpcjp_json_val*cpcjp_parse_stream(struct __istream*__is)
 				{
 					if(__top->stuff->type==CPCJP_LIST)
 					{
+						__tmph->stuff->name = NULL;
 						cpcds_vec_append_single_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)__top->stuff->stuff,__tmph->stuff);
 					}
 					else if(__top->stuff->type==CPCJP_OBJ)
@@ -641,12 +664,18 @@ struct __cpcjp_json_val*cpcjp_parse_stream(struct __istream*__is)
 							__top->stuff->type=CPCJP_NULL;
 							__top->stuff->stuff=NULL;
 						}
+						else
+						{
+							cpcds_stdprint_cppstr(__curr_obj_dat);
+							printf(" is fucking gay.\n");
+						}
 						__tmph = __top;
 						__top = __top->up;
 						if(__top!=NULL)
 						{
 							if(__top->stuff->type==CPCJP_LIST)
 							{
+								__tmph->stuff->name=NULL;
 								cpcds_vec_append_single_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)__top->stuff->stuff,__tmph->stuff);
 							}
 							else if(__top->stuff->type==CPCJP_OBJ)
