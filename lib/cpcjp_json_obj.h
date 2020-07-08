@@ -7,7 +7,6 @@ enum cpcjp_val_types;
 struct __cpcjp_json_val;
 struct __cpcjp_json_iter;
 union iocjv;
-struct __cpcjp_parse_helper;
 struct __cpcjp_dump_helper;
 /*struct __cpcjp_json_val*cpcjp_get_elem(struct __cpcjp_json_obj*,struct cppstring name);
 void cpcjp_set_elem(struct __cpcjp_json_obj*,struct cppstring name,struct __cpcjp_json_val*);
@@ -35,6 +34,7 @@ void cpcjp_insert_val_into_list(struct __cpcjp_json_val*,struct __cpcjp_json_val
 void cpcjp_insert_null_into_list(struct __cpcjp_json_val*);
 void cpcjp_erase_from_obj(struct __cpcjp_json_val*,const char*);
 struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*);
+void cpcjp_free_val(struct __cpcjp_json_val*);
 typedef struct __cpcjp_json_val*cpcjp_json_val;
 typedef struct __cpcjp_json_iter*cpcjp_json_iter;
 typedef struct cppstring cpcjp_json_str;

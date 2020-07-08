@@ -40,64 +40,6 @@ void cpcjp_destr_iter(struct __cpcjp_json_iter*__it__)
 	free(__it__->iter);
 	free(__it__->end);
 }*/
-struct __cpcjp_json_val *cpcjp_init_obj(void)
-{
-	struct __cpcjp_json_val *val = malloc(sizeof(struct __cpcjp_json_val));
-	val->name = NULL;
-	val->stuff = malloc(sizeof(union iocjv));
-	val->type = CPCJP_OBJ;
-
-	val->stuff->obj = cpcds_mk_um_empty_cpcjp_json_map();
-	return val;
-}
-struct __cpcjp_json_val *cpcjp_init_bool(int v)
-{
-	struct __cpcjp_json_val *val = malloc(sizeof(struct __cpcjp_json_val));
-	val->name = NULL;
-	val->stuff = malloc(sizeof(union iocjv));
-	val->type = CPCJP_BOOL;
-
-	val->stuff->tof = v & 0x00000001;
-	return val;
-}
-struct __cpcjp_json_val *cpcjp_init_num(double v)
-{
-	struct __cpcjp_json_val *val = malloc(sizeof(struct __cpcjp_json_val));
-	val->name = NULL;
-	val->stuff = malloc(sizeof(union iocjv));
-	val->type = CPCJP_NUM;
-
-	val->stuff->num = v;
-	return val;
-}
-struct __cpcjp_json_val *cpcjp_init_list(void)
-{
-	struct __cpcjp_json_val *val = malloc(sizeof(struct __cpcjp_json_val));
-	val->name = NULL;
-	val->stuff = malloc(sizeof(union iocjv));
-	val->type = CPCJP_LIST;
-
-	val->stuff->list = cpcds_mk_vec_default_cpcjp_json_list();
-	return val;
-}
-struct __cpcjp_json_val *cpcjp_init_str(const char *str)
-{
-	struct __cpcjp_json_val *val = malloc(sizeof(struct __cpcjp_json_val));
-	val->name = NULL;
-	val->stuff = malloc(sizeof(union iocjv));
-	val->type = CPCJP_STR;
-
-	val->stuff->str = mk_from_cstr(str);
-	return val;
-}
-struct __cpcjp_json_val *cpcjp_nullptr_val(void)
-{
-	struct __cpcjp_json_val *val = malloc(sizeof(struct __cpcjp_json_val));
-	val->name = NULL;
-	val->stuff = NULL;
-	val->type = CPCJP_NULL;
-	return val;
-}
 struct __cpcjp_parse_helper*__cpcjp_mk_helper(struct __cpcjp_json_val*stuff,struct __cpcjp_parse_helper*up)
 {
 	struct __cpcjp_parse_helper*x=(struct __cpcjp_parse_helper*)malloc(sizeof(struct __cpcjp_parse_helper));
