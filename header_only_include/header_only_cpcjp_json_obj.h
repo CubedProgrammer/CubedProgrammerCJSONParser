@@ -213,6 +213,31 @@ struct __cpcjp_json_val *cpcjp_nullptr_val(void)
 	val->type = CPCJP_NULL;
 	return val;
 }
+size_t cpcjp_val_size(struct __cpcjp_json_val *val)
+{
+	if(val->type == CPCJP_STR)
+		return val->stuff->str.len;
+	else if(val->type == CPCJP_OBJ)
+		return val->stuff->obj.size;
+	else if(val->type == CPCJP_LIST)
+		return val->stuff->list.size;
+	else
+		return-1;
+}
+struct __cpcjp_json_val *cpcjp_list_get(struct __cpcjp_json_val *list, size_t ind)
+{
+	if(list->type == CPCJP_LIST)
+		return cpcds_vec_get_at_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)list->stuff, ind);
+	else
+		return NULL;
+}
+struct __cpcjp_json_val *cpcjp_obj_get(struct __cpcjp_json_val *obj, const char *n)
+{
+	cppstring ns = mk_from_cstr(n);
+	struct __cpcjp_json_val *v = cpcds_um_get_cpcjp_json_map((struct cpcds_um_cpcjp_json_map*)obj->stuff, ns);
+	cpcds_destr_str(ns);
+	return v;
+}
 struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*__val)
 {
 	struct __ostream*__os=openoss();
