@@ -36,6 +36,8 @@ void cpcjp_erase_from_obj(struct __cpcjp_json_val*,const char*);
 size_t cpcjp_val_size(struct __cpcjp_json_val*);
 struct __cpcjp_json_val *cpcjp_list_get(struct __cpcjp_json_val*, size_t);
 struct __cpcjp_json_val *cpcjp_obj_get(struct __cpcjp_json_val*, const char*);
+void cpcjp_list_clear(struct __cpcjp_json_val*);
+void cpcjp_obj_clear(struct __cpcjp_json_val*);
 struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*);
 void cpcjp_free_val(struct __cpcjp_json_val*);
 typedef struct __cpcjp_json_val*cpcjp_json_val;

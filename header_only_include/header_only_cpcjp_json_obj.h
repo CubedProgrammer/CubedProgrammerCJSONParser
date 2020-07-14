@@ -238,6 +238,13 @@ struct __cpcjp_json_val *cpcjp_obj_get(struct __cpcjp_json_val *obj, const char 
 	cpcds_destr_str(ns);
 	return v;
 }
+void cpcjp_list_clear(struct __cpcjp_json_val* list)
+{
+	for(size_t i = 0; i < list->stuff->list.size; ++i)
+		cpcjp_free_val(cpcds_vec_get_at_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)list->stuff, i));
+	cpcds_vec_clear_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)list->stuff);
+}
+void cpcjp_obj_clear(struct __cpcjp_json_val*);
 struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*__val)
 {
 	struct __ostream*__os=openoss();
