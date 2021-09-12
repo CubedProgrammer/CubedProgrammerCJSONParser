@@ -17,7 +17,7 @@
 #define COLON ':'
 #define COMMA ','
 #define cpcjp_is_alphanumeric(ch)(((ch)<='9'&&(ch)>='0')||((ch)<='Z'&&(ch)>='A')||((ch)<='z'&&(ch)>='a'))
-#define cpcjp_is_whitespace(ch)((ch)==' '||(ch)=='\n'||(ch)=='\t')
+#define cpcjp_is_whitespace(ch)((ch)=='\b'||(ch)=='\r'||(ch)==' '||(ch)=='\n'||(ch)=='\t')
 #define cpcjp_make_cdh(helper,val,stat)do {  helper.stuff=val;helper.status=stat;  } while (0)
 define_cpcds_um(cpcjp_json_map,struct cppstring,struct cpcjp_json_val*,str_equal_values,cpcds_hash_str)
 define_cpcds_vector(cpcjp_json_list,cpcjp_json_val)
@@ -323,7 +323,7 @@ struct cpcjp_json_val*cpcjp_parse_stream(struct cpcio____istream*is)
 	struct cpcjp_json_val*tmpj=NULL;
 	struct cpcjp_parse_helper*tmph=NULL;
 	struct cppstring*tmps=NULL;
-	while(ch!=0xff)
+	while(ch!=-1)
 	{
 		switch(ch)
 		{
@@ -379,6 +379,8 @@ struct cpcjp_json_val*cpcjp_parse_stream(struct cpcio____istream*is)
 						}
 						else
 						{
+							/*if(ch == -1)
+								printf("%lu\n", strlen(cpcio_oss_str(os)));*/
 							cpcio_putc_os(os,ch);
 						}
 					}
@@ -462,6 +464,7 @@ struct cpcjp_json_val*cpcjp_parse_stream(struct cpcio____istream*is)
 				break;
 			case LBRACE:
 				tmpmp=(struct cpcds_um_cpcjp_json_map*)malloc(sizeof(struct cpcds_um_cpcjp_json_map));
+				*tmpmp=cpcds_mk_um_empty_cpcjp_json_map();
 				tmpj=(struct cpcjp_json_val*)malloc(sizeof(struct cpcjp_json_val));
 				tmpj->stuff=(union iocjv*)tmpmp;
 				tmpj->type=CPCJP_OBJ;
@@ -494,54 +497,62 @@ struct cpcjp_json_val*cpcjp_parse_stream(struct cpcio____istream*is)
 				}
 				cpcio_putc_os(os,ch);
 				ch=cpcio_getc_is(is);
-				while(!cpcjp_is_alphanumeric(ch))
+				while(cpcjp_is_whitespace(ch))
 				{
-					cpcio_putc_os(os,ch);
+					//cpcio_putc_os(os,ch);
 					ch=cpcio_getc_is(is);
 				}
-				curr_obj_dat=mk_from_cstr(cpcio_oss_str(os));
-				top=cpcjp_mk_helper(NULL,top);
-				top->stuff=(struct cpcjp_json_val*)malloc(sizeof(struct cpcjp_json_val));
-				if(str_char_at(&curr_obj_dat,0)>='0'&&str_char_at(&curr_obj_dat,0)<='9'||str_char_at(&curr_obj_dat,0)=='+'||str_char_at(&curr_obj_dat,0)=='-')
+				if(cpcjp_is_alphanumeric(ch))
 				{
-					top->stuff->type=CPCJP_NUM;
-					top->stuff->stuff=malloc(sizeof(cpcjp_json_num));
-					tmpd=(cpcjp_json_num*)top->stuff->stuff;
-					*tmpd=strtod(cstr(&curr_obj_dat),NULL);
-				}
-				else if(str_equal_values(CPCJP_BOOL_TRUE,curr_obj_dat))
-				{
-					top->stuff->type=CPCJP_BOOL;
-					top->stuff->stuff=malloc(sizeof(cpcjp_json_bool));
-					for(char*it=(char*)top->stuff->stuff;it!=(char*)(top->stuff->stuff+sizeof(cpcjp_json_bool));++it)
+					curr_obj_dat=mk_from_cstr(cpcio_oss_str(os));
+					top=cpcjp_mk_helper(NULL,top);
+					top->stuff=(struct cpcjp_json_val*)malloc(sizeof(struct cpcjp_json_val));
+					if(str_char_at(&curr_obj_dat,0)>='0'&&str_char_at(&curr_obj_dat,0)<='9'||str_char_at(&curr_obj_dat,0)=='+'||str_char_at(&curr_obj_dat,0)=='-')
 					{
-						if(it+1==(char*)(top->stuff->stuff+sizeof(cpcjp_json_bool)))
+						top->stuff->type=CPCJP_NUM;
+						top->stuff->stuff=malloc(sizeof(cpcjp_json_num));
+						tmpd=(cpcjp_json_num*)top->stuff->stuff;
+						*tmpd=strtod(cstr(&curr_obj_dat),NULL);
+					}
+					else if(str_equal_values(CPCJP_BOOL_TRUE,curr_obj_dat))
+					{
+						top->stuff->type=CPCJP_BOOL;
+						top->stuff->stuff=malloc(sizeof(cpcjp_json_bool));
+						for(char*it=(char*)top->stuff->stuff;it!=(char*)(top->stuff->stuff+sizeof(cpcjp_json_bool));++it)
 						{
-							*it=1;
+							if(it+1==(char*)(top->stuff->stuff+sizeof(cpcjp_json_bool)))
+							{
+								*it=1;
+							}
+							else
+							{
+								*it='\0';
+							}
 						}
-						else
+					}
+					else if(str_equal_values(CPCJP_BOOL_FALSE,curr_obj_dat))
+					{
+						top->stuff->type=CPCJP_BOOL;
+						top->stuff->stuff=malloc(sizeof(cpcjp_json_bool));
+						for(char*it=(char*)top->stuff->stuff;it!=(char*)(top->stuff->stuff+sizeof(cpcjp_json_bool));++it)
 						{
 							*it='\0';
 						}
 					}
-				}
-				else if(str_equal_values(CPCJP_BOOL_FALSE,curr_obj_dat))
-				{
-					top->stuff->type=CPCJP_BOOL;
-					top->stuff->stuff=malloc(sizeof(cpcjp_json_bool));
-					for(char*it=(char*)top->stuff->stuff;it!=(char*)(top->stuff->stuff+sizeof(cpcjp_json_bool));++it)
+					else if(str_equal_values(CPCJP_NULL_STR,curr_obj_dat))
 					{
-						*it='\0';
+						top->stuff->type=CPCJP_NULL;
+						top->stuff->stuff=NULL;
 					}
 				}
-				else if(str_equal_values(CPCJP_NULL_STR,curr_obj_dat))
+				else
 				{
-					top->stuff->type=CPCJP_NULL;
-					top->stuff->stuff=NULL;
+					cpcio_ungetc_is(is);
 				}
 				break;
 		}
 		ch=cpcio_getc_is(is);
+		printf("%d\n", (int)ch);
 	}
 	return val;
 }
