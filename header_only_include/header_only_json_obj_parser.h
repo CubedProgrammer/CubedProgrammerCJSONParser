@@ -558,10 +558,23 @@ struct cpcjp_json_val*cpcjp_parse_stream(struct cpcio____istream*is)
 }
 struct cpcjp_json_val*cpcjp_parse_str(const struct cppstring s)
 {
-	struct cpcio____istream*is=cpcio_open_isstream(cstr(&s));
+	return cpcjp_parse_cstr(cstr(&s));
+}
+struct cpcjp_json_val*cpcjp_parse_cstr(const char*str)
+{
+	struct cpcio____istream*is=cpcio_open_isstream(str);
 	struct cpcjp_json_val*val=cpcjp_parse_stream(is);
 	cpcio_close_istream(is);
 	free(is);
+	return val;
+}
+struct cpcjp_json_val*cpcjp_parse_arr(const char*arr,size_t sz)
+{
+	char*new=malloc(sz+1);
+	memcpy(new,arr,sz);
+	new[sz]='\0';
+	struct cpcjp_json_val*val=cpcjp_parse_cstr(new);
+	free(new);
 	return val;
 }
 #endif
