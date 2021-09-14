@@ -468,7 +468,15 @@ struct cpcjp_json_val*cpcjp_parse_stream(struct cpcio____istream*is)
 				tmpj=(struct cpcjp_json_val*)malloc(sizeof(struct cpcjp_json_val));
 				tmpj->stuff=(union iocjv*)tmpmp;
 				tmpj->type=CPCJP_OBJ;
-				top=cpcjp_mk_helper(tmpj,top);
+				if(top->up==NULL)
+				{
+					val=tmpj;
+					top->stuff = val;
+				}
+				else
+				{
+					top=cpcjp_mk_helper(tmpj,top);
+				}
 				break;
 			case RBRACE:
 				tmph=top;
