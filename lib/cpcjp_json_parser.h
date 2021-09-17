@@ -5,7 +5,7 @@
 #include"cpcjp_json_obj.h"
 struct __cpcjp_parse_helper;
 struct __cpcjp_parse_helper*__cpcjp_mk_helper(struct __cpcjp_json_val*,struct __cpcjp_parse_helper*);
-struct __cpcjp_json_val*cpcjp_parse_stream(struct __istream*);
+struct __cpcjp_json_val*cpcjp_parse_stream(struct cpcio____istream*);
 struct __cpcjp_json_val*cpcjp_parse_str(const struct cppstring);
 #endif
 #endif

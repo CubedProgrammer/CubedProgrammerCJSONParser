@@ -3,7 +3,8 @@
 #define Included_cpcjp_json_obj_h
 #include<stdbool.h>
 struct cppstring;
-enum cpcjp_val_types;
+enum cpcjp_val_types
+{CPCJP_NULL,CPCJP_BOOL,CPCJP_LIST,CPCJP_NUM,CPCJP_OBJ,CPCJP_STR};
 struct __cpcjp_json_val;
 struct __cpcjp_json_iter;
 union iocjv;

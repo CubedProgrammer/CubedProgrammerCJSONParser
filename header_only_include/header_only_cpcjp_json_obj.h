@@ -3,10 +3,10 @@
 #define Included_header_only_cpcjp_json_obj_h
 #include<cpcds_vector.h>
 #include<cpcds_unordered_map.h>
-#include<header_only_fstream.h>
-#include<header_only_istream.h>
-#include<header_only_ostream.h>
-#include<header_only_sstream.h>
+#include<cpcio_fstream.h>
+#include<cpcio_istream.h>
+#include<cpcio_ostream.h>
+#include<cpcio_sstream.h>
 #include<cpcjp_json_parser.h>
 #define LBRACE '{'
 #define RBRACE '}'
@@ -19,8 +19,6 @@
 #define __cpcjp_is_alphanumeric(__ch__)(((__ch__)<='9'&&(__ch__)>='0')||((__ch__)<='Z'&&(__ch__)>='A')||((__ch__)<='z'&&(__ch__)>='a'))
 #define __cpcjp_is_whitespace(__ch__)((__ch__)==' '||(__ch__)=='\n'||(__ch__)=='\t')
 #define __cpcjp_make_cdh(__helper__,__val__,__status__)do {  __helper__.stuff=__val__;__helper__.status=__status__;  } while (0)
-enum cpcjp_val_types
-{CPCJP_NULL,CPCJP_BOOL,CPCJP_LIST,CPCJP_NUM,CPCJP_OBJ,CPCJP_STR};
 define_cpcds_um(cpcjp_json_map,struct cppstring,struct __cpcjp_json_val*,str_equal_values,cpcds_hash_str)
 define_cpcds_vector(cpcjp_json_list,cpcjp_json_val)
 define_cpcds_deque(cpcjp_free_helper,cpcjp_json_val)
@@ -247,7 +245,7 @@ void cpcjp_list_clear(struct __cpcjp_json_val* list)
 void cpcjp_obj_clear(struct __cpcjp_json_val*);
 struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*__val)
 {
-	struct __ostream*__os=openoss();
+	ostream __os=cpcio_open_osstream();
 	struct cpcds_vector_cpcjp_dump_helper stkv;
 	struct cpcds_vector_cpcjp_dump_helper*stk=&stkv;
 	stkv = cpcds_mk_vec_default_cpcjp_dump_helper();
@@ -405,7 +403,7 @@ struct cppstring cpcjp_dump_obj(struct __cpcjp_json_val*__val)
 	}
 	cpcds_vec_destr_cpcjp_dump_helper(stk);
 	struct cppstring __str=mk_from_cstr(cpcio_oss_str(__os));
-	closeos(__os);
+	cpcio_close_ostream(__os);
 	return __str;
 }
 void cpcjp_free_val(struct __cpcjp_json_val *val)
