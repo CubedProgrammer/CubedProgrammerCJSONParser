@@ -1,3 +1,4 @@
+
 #ifndef cplusplus
 #ifndef Included_header_only_json_obj_parser_h
 #define Included_header_only_json_obj_parser_h
@@ -7,7 +8,7 @@
 #include<sstream.h>
 //#include<header_only_fstream.h>
 //#include<header_only_sstream.h>
-#include<cpcjp_json_parser.h>
+#include"../include/cpcjp_json_parser.h"
 #define LBRACE '{'
 #define RBRACE '}'
 #define LSQRBR '['

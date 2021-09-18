@@ -143,8 +143,8 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 				{
 					curr_obj_name=curr_obj_dat;
 					curr_obj_dat=mk_empty_str();
-					cpcds_stdprint_cppstr(curr_obj_name);
-					printf(" is curr_obj_name\n");
+					//cpcds_stdprint_cppstr(curr_obj_name);
+					//printf(" is curr_obj_name\n");
 				}
 				else
 				{
@@ -152,10 +152,10 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 					tmpj->stuff=malloc(sizeof(union iocjv));
 					tmpj->stuff->str=curr_obj_dat;
 					tmpj->type=CPCJP_STR;
-					cpcds_stdprint_cppstr(curr_obj_name);
-					printf(" is curr_obj_name\n");
-					cpcds_stdprint_cppstr(curr_obj_dat);
-					printf(" is curr_obj_dat\n");
+					//cpcds_stdprint_cppstr(curr_obj_name);
+					//printf(" is curr_obj_name\n");
+					//cpcds_stdprint_cppstr(curr_obj_dat);
+					//printf(" is curr_obj_dat\n");
 					if(top->stuff->type==CPCJP_LIST)
 					{
 						cpcds_vec_append_single_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)top->stuff->stuff,tmpj);
@@ -197,9 +197,9 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 					val=tmph->stuff;
 				}
 				free(tmph);
-				cpcds_stdprint_cppstr(curr_obj_name);
-				printf("\n");
-				fflush(stdout);
+				//cpcds_stdprint_cppstr(curr_obj_name);
+				//printf("\n");
+				//fflush(stdout);
 				break;
 			case LBRACE:
 				tmpj=(struct cpcjp_json_val*)malloc(sizeof(struct cpcjp_json_val));
@@ -229,14 +229,14 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 					val=tmph->stuff;
 				}
 				free(tmph);
-				cpcds_stdprint_cppstr(curr_obj_name);
-				printf(" curly\n");
-				fflush(stdout);
+				//cpcds_stdprint_cppstr(curr_obj_name);
+				//printf(" curly\n");
+				//fflush(stdout);
 				/*for(int i = 0; is->cbuf[i] != -1; ++i)
 				{
 					printf("%c",is->cbuf[i]);
 				}*/
-				printf("\n");
+				//printf("\n");
 				break;
 			case-1:
 				break;
@@ -252,11 +252,11 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 						cpcio_putc_os(os,ch);
 						ch=cpcio_getc_is(is);
 					}
-					while(cpcjp_is_alphanumeric(ch));
+					while(ch=='.'||cpcjp_is_alphanumeric(ch));
 					cpcio_ungetc_is(is);
 					curr_obj_dat=mk_from_cstr(cpcio_oss_str(os));
-					cpcds_stdprint_cppstr(curr_obj_dat);
-					printf(", %d\n", ch);
+					//cpcds_stdprint_cppstr(curr_obj_dat);
+					//printf(", %d\n", ch);
 					fflush(stdout);
 					cpcio_close_ostream(os);
 					free(os);
@@ -290,8 +290,7 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 						}
 						else
 						{
-							cpcds_stdprint_cppstr(curr_obj_dat);
-							printf(" is fucking gay.\n");
+							//cpcds_stdprint_cppstr(curr_obj_dat);
 						}
 						tmph = top;
 						top = top->up;
