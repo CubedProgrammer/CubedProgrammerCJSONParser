@@ -1,7 +1,8 @@
 #ifndef __cplusplus
 #ifndef Included_header_only_json_obj_parser_h
 #define Included_header_only_json_obj_parser_h
-#include<header_only_cpcjp_json_obj.h>
+#include<cpcjp_json_obj.h>
+#include<cpcjp_json_parser.h>
 /*struct cpcjp_json_val*cpcjp_get_elem(struct cpcjp_json_obj*obj,struct cppstring str)
 {
 	return cpcds_um_get_cpcjp_json_map(obj->objmp,str);
@@ -57,8 +58,8 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 	cpcio_ostream os=cpcio_open_osstream();
 	struct cppstring curr_obj_dat;
 	struct cppstring curr_obj_name=mk_empty_str();
-	cpcjp_json_list*tmpl=NULL;
-	struct cpcjp_json_val*tmpv=NULL;
+	//cpcjp_json_list*tmpl=NULL;
+	//struct cpcjp_json_val*tmpv=NULL;
 	char ch=cpcio_getc_is(is);
 	bool last_char_slash=false;
 	struct cpcjp_json_val*tmpj=NULL;
@@ -182,13 +183,13 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 			case RSQRBR:
 				tmph=top;
 				top=top->up;
-				tmpl=(struct cpcds_vector_cpcjp_json_list*)tmph->stuff->stuff;
+				/*tmpl=(struct cpcds_vector_cpcjp_json_list*)tmph->stuff->stuff;
 				for(size_t i=0;i<tmpl->size/2;i++)
 				{
 					tmpv=cpcds_vec_get_at_cpcjp_json_list(tmpl,i);
 					cpcds_vec_set_single_cpcjp_json_list(tmpl,i,cpcds_vec_get_at_cpcjp_json_list(tmpl,tmpl->size-i-1));
 					cpcds_vec_set_single_cpcjp_json_list(tmpl,tmpl->size-i-1,tmpv);
-				}
+				}*/
 				if(top!=NULL)
 				{
 					if(top->stuff->type==CPCJP_LIST)

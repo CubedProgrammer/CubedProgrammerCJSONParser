@@ -1,4 +1,3 @@
-
 #ifndef __cplusplus
 #ifndef Included_header_only_cpcjp_json_obj_h
 #define Included_header_only_cpcjp_json_obj_h
@@ -8,7 +7,7 @@
 #include<cpcio_istream.h>
 #include<cpcio_ostream.h>
 #include<cpcio_sstream.h>
-#include"../include/cpcjp_json_parser.h"
+#include<cpcjp_json_obj.h>
 #define LBRACE '{'
 #define RBRACE '}'
 #define LSQRBR '['
@@ -337,7 +336,7 @@ struct cppstring cpcjp_dump_obj(struct cpcjp_json_val*val)
 					tmp.status = DUMP_HELPER_OPENED;
 					cpcds_vec_append_single_cpcjp_dump_helper(stk, tmp);
 
-					for(size_t i = 0; i < tmpl.size; ++i)
+					for(int64_t i = tmpl.size - 1; i >= 0; --i)
 					{
 						tmp.is_self_containing = false;
 						cpcjp_make_cdh(tmp, cpcds_vec_get_at_cpcjp_json_list(&tmpl,i), DUMP_HELPER_PENDING);
