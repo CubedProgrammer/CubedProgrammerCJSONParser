@@ -458,8 +458,8 @@ void cpcjp_free_val(struct cpcjp_json_val *val)
 				free(val);
 				break;
 			default:
-				if(val->name)
-					free((void*)val->name);
+				/*if(val->name)
+					free((void*)val->name);*/
 				if(val->stuff)
 					free(val->stuff);
 				free(val);
