@@ -168,6 +168,7 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 					{
 						cpcds_um_insert_cpcjp_json_map((struct cpcds_um_cpcjp_json_map*)top->stuff->stuff,curr_obj_name,tmpj);
 						tmpj->name=cstr(&curr_obj_name);
+						tmpj->tofree = 1;
 					}
 					cpcio_ungetc_is(is);
 				}
@@ -178,6 +179,7 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 				tmpj->stuff->list=cpcds_mk_vec_default_cpcjp_json_list();
 				tmpj->type=CPCJP_LIST;
 				tmpj->name=cstr(&curr_obj_name);
+				tmpj->tofree = 1;
 				top=cpcjp_mk_helper(tmpj,top);
 				break;
 			case RSQRBR:
@@ -217,6 +219,7 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 				tmpj->stuff->obj=cpcds_mk_um_empty_cpcjp_json_map();
 				tmpj->type=CPCJP_OBJ;
 				tmpj->name=cstr(&curr_obj_name);
+				tmpj->tofree = 1;
 				top=cpcjp_mk_helper(tmpj,top);
 				break;
 			case RBRACE:
@@ -314,6 +317,7 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 							else if(top->stuff->type==CPCJP_OBJ)
 							{
 								tmph->stuff->name=cstr(&curr_obj_name);
+								tmph->stuff->tofree=1;
 								cpcds_um_insert_cpcjp_json_map((struct cpcds_um_cpcjp_json_map*)top->stuff->stuff,curr_obj_name,tmph->stuff);
 							}
 						}

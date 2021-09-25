@@ -22,12 +22,6 @@
 define_cpcds_um(cpcjp_json_map,struct cppstring,struct cpcjp_json_val*,str_equal_values,cpcds_hash_str)
 define_cpcds_vector(cpcjp_json_list,cpcjp_json_val)
 define_cpcds_deque(cpcjp_free_helper,cpcjp_json_val)
-struct cpcjp_json_val
-{
-	enum cpcjp_val_types type;
-	union iocjv*stuff;
-	const char*name;
-};
 struct cpcjp_json_iter
 {
 	struct cpcds_umiter_cpcjp_json_map*iter;
@@ -64,7 +58,10 @@ void cpcjp_insert_num_into_obj(struct cpcjp_json_val *val,const char *key,double
 	}
 	else
 	{
-		cpcds_um_insert_cpcjp_json_map(&val->stuff->obj, mk_from_cstr(key), cpcjp_init_num(n));
+		struct cpcjp_json_val *num = cpcjp_init_num(n);
+		num->name = key;
+		num->tofree = 0;
+		cpcds_um_insert_cpcjp_json_map(&val->stuff->obj, mk_from_cstr(key), num);
 	}
 }
 void cpcjp_insert_bool_into_obj(struct cpcjp_json_val *val,const char *key,int n)
@@ -75,7 +72,10 @@ void cpcjp_insert_bool_into_obj(struct cpcjp_json_val *val,const char *key,int n
 	}
 	else
 	{
-		cpcds_um_insert_cpcjp_json_map(&val->stuff->obj, mk_from_cstr(key), cpcjp_init_bool(n));
+		struct cpcjp_json_val *b = cpcjp_init_bool(n);
+		b->name = key;
+		b->tofree = 0;
+		cpcds_um_insert_cpcjp_json_map(&val->stuff->obj, mk_from_cstr(key), b);
 	}
 }
 void cpcjp_insert_str_into_obj(struct cpcjp_json_val *val, const char *key, const char *str)
@@ -91,6 +91,7 @@ void cpcjp_insert_str_into_obj(struct cpcjp_json_val *val, const char *key, cons
 		new->stuff = malloc(sizeof(*new->stuff));
 		new->stuff->str = mk_from_cstr(str);
 		new->type = CPCJP_STR;
+		new->tofree = 0;
 
 		cpcds_um_insert_cpcjp_json_map(&val->stuff->obj, mk_from_cstr(key), new);
 	}
@@ -104,6 +105,7 @@ void cpcjp_insert_val_into_obj(struct cpcjp_json_val *obj, const char *key, stru
 	else
 	{
 		val->name = key;
+		val->tofree = 0;
 		cpcds_um_insert_cpcjp_json_map(&obj->stuff->obj, mk_from_cstr(key), val);
 	}
 }
@@ -115,7 +117,10 @@ void cpcjp_insert_null_into_obj(struct cpcjp_json_val *val, const char *key)
 	}
 	else
 	{
-		cpcds_um_insert_cpcjp_json_map(&val->stuff->obj, mk_from_cstr(key), cpcjp_nullptr_val());
+		struct cpcjp_json_val *nullptr = cpcjp_nullptr_val();
+		nullptr->name = key;
+		nullptr->tofree = 0;
+		cpcds_um_insert_cpcjp_json_map(&val->stuff->obj, mk_from_cstr(key), nullptr);
 	}
 }
 void cpcjp_insert_num_into_list(struct cpcjp_json_val *list, size_t ind, double n)
@@ -458,8 +463,8 @@ void cpcjp_free_val(struct cpcjp_json_val *val)
 				free(val);
 				break;
 			default:
-				/*if(val->name)
-					free((void*)val->name);*/
+				if(val->tofree&&val->name)
+					free((void*)val->name);
 				if(val->stuff)
 					free(val->stuff);
 				free(val);
