@@ -449,27 +449,28 @@ void cpcjp_free_val(struct cpcjp_json_val *val)
 				for(size_t i = 0; i < val->stuff->list.size; ++i)
 					cpcds_deque_push_cpcjp_free_helper(&q, cpcds_vec_get_at_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)val->stuff, i));
 				cpcds_vec_destr_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)val->stuff);
-				free(val->stuff);
+				/*free(val->stuff);
 				if(val->name)
 					free((void*)val->name);
-				free(val);
+				free(val);*/
 				break;
 			case CPCJP_OBJ:
 				for(cpcds_umiter_cpcjp_json_map it = cpcds_um_iter_begin_cpcjp_json_map((struct cpcds_um_cpcjp_json_map*)val->stuff); !cpcds_um_iter_equal_cpcjp_json_map(it, cpcds_um_iter_end_cpcjp_json_map((struct cpcds_um_cpcjp_json_map*)val->stuff)); cpcds_um_iter_next_cpcjp_json_map(&it))
+				{
+					cpcds_destr_str(cpcds_um_iter_get_cpcjp_json_map(&it).key);
 					cpcds_deque_push_cpcjp_free_helper(&q, cpcds_um_iter_get_cpcjp_json_map(&it).val);
-				free(val->stuff);
+				}
+				/*free(val->stuff);
 				if(val->name)
 					free((void*)val->name);
-				free(val);
-				break;
-			default:
-				if(val->tofree&&val->name)
-					free((void*)val->name);
-				if(val->stuff)
-					free(val->stuff);
-				free(val);
+				free(val);*/
 				break;
 		}
+		/*if(val->tofree&&val->name)
+			free((void*)val->name);*/
+		if(val->stuff)
+			free(val->stuff);
+		free(val);
 	}
 	cpcds_deque_clear_cpcjp_free_helper(&q);
 }
