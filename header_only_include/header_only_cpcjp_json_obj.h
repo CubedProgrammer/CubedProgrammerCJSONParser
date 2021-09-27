@@ -257,7 +257,22 @@ void cpcjp_list_clear(struct cpcjp_json_val* list)
 		cpcjp_free_val(cpcds_vec_get_at_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)list->stuff, i));
 	cpcds_vec_clear_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)list->stuff);
 }
-void cpcjp_obj_clear(struct cpcjp_json_val*);
+void cpcjp_obj_clear(struct cpcjp_json_val* obj)
+{
+	struct cppstring *keys = malloc(obj->stuff->obj.size * sizeof(struct cppstring));
+	size_t cnt = 0;
+	for(cpcds_umiter_cpcjp_json_map it = cpcds_um_iter_begin_cpcjp_json_map(&obj->stuff->obj); !cpcds_um_iter_equal_cpcjp_json_map(it, cpcds_um_iter_end_cpcjp_json_map(&obj->stuff->obj)); cpcds_um_iter_next_cpcjp_json_map(&it))
+	{
+		keys[cnt] = cpcds_um_iter_get_cpcjp_json_map(&it).key;
+		cpcjp_free_val(cpcds_um_iter_get_cpcjp_json_map(&it).val);
+		++cnt;
+	}
+	for(size_t i = 0; i < cnt; ++i)
+	{
+		cpcds_um_erase_key_cpcjp_json_map(&obj->stuff->obj, keys[i]);
+		cpcds_destr_str(keys[i]);
+	}
+}
 struct cppstring cpcjp_dump_obj(struct cpcjp_json_val*val)
 {
 	cpcio_ostream os=cpcio_open_osstream();
@@ -433,8 +448,6 @@ void cpcjp_free_val(struct cpcjp_json_val *val)
 			cpcds_deque_push_cpcjp_free_helper(&q, val);
 			break;
 		default:
-			if(val->name)
-				free((void*)val->name);
 			if(val->stuff)
 				free(val->stuff);
 			free(val);
@@ -449,10 +462,6 @@ void cpcjp_free_val(struct cpcjp_json_val *val)
 				for(size_t i = 0; i < val->stuff->list.size; ++i)
 					cpcds_deque_push_cpcjp_free_helper(&q, cpcds_vec_get_at_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)val->stuff, i));
 				cpcds_vec_destr_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)val->stuff);
-				/*free(val->stuff);
-				if(val->name)
-					free((void*)val->name);
-				free(val);*/
 				break;
 			case CPCJP_OBJ:
 				for(cpcds_umiter_cpcjp_json_map it = cpcds_um_iter_begin_cpcjp_json_map((struct cpcds_um_cpcjp_json_map*)val->stuff); !cpcds_um_iter_equal_cpcjp_json_map(it, cpcds_um_iter_end_cpcjp_json_map((struct cpcds_um_cpcjp_json_map*)val->stuff)); cpcds_um_iter_next_cpcjp_json_map(&it))
@@ -460,14 +469,8 @@ void cpcjp_free_val(struct cpcjp_json_val *val)
 					cpcds_destr_str(cpcds_um_iter_get_cpcjp_json_map(&it).key);
 					cpcds_deque_push_cpcjp_free_helper(&q, cpcds_um_iter_get_cpcjp_json_map(&it).val);
 				}
-				/*free(val->stuff);
-				if(val->name)
-					free((void*)val->name);
-				free(val);*/
 				break;
 		}
-		/*if(val->tofree&&val->name)
-			free((void*)val->name);*/
 		if(val->stuff)
 			free(val->stuff);
 		free(val);
