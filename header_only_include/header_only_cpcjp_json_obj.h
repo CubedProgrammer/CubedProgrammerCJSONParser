@@ -244,6 +244,13 @@ struct cpcjp_json_val *cpcjp_list_get(struct cpcjp_json_val *list, size_t ind)
 	else
 		return NULL;
 }
+int cpcjp_obj_has(struct cpcjp_json_val *obj, const char *n)
+{
+	cppstring ns = mk_from_cstr(n);
+	int cont = cpcds_um_fnd_key_cpcjp_json_map(&obj->stuff->obj, ns);
+	cpcds_destr_str(ns);
+	return cont;
+}
 struct cpcjp_json_val *cpcjp_obj_get(struct cpcjp_json_val *obj, const char *n)
 {
 	cppstring ns = mk_from_cstr(n);

@@ -13,6 +13,7 @@ struct cpcjp_json_val
 	const char*name;
 	int tofree;
 };
+struct cpcjp_json_iter;
 struct cpcjp_parse_helper;
 struct cpcjp_dump_helper;
 /*struct cpcjp_json_val*cpcjp_get_elem(struct cpcjp_json_obj*,struct cppstring name);
@@ -43,6 +44,7 @@ void cpcjp_insert_null_into_list(struct cpcjp_json_val*,size_t);
 void cpcjp_erase_from_obj(struct cpcjp_json_val*,const char*);
 size_t cpcjp_val_size(struct cpcjp_json_val*);
 struct cpcjp_json_val *cpcjp_list_get(struct cpcjp_json_val*, size_t);
+int cpcjp_obj_has(struct cpcjp_json_val*, const char*);
 struct cpcjp_json_val *cpcjp_obj_get(struct cpcjp_json_val*, const char*);
 void cpcjp_list_clear(struct cpcjp_json_val*);
 void cpcjp_obj_clear(struct cpcjp_json_val*);
