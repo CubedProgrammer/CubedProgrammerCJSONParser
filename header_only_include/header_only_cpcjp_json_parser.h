@@ -234,7 +234,10 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 					}
 					else if(top->stuff->type==CPCJP_OBJ)
 					{
+						curr_obj_name=mk_from_cstr(tmph->stuff->name);
 						cpcds_um_insert_cpcjp_json_map((struct cpcds_um_cpcjp_json_map*)top->stuff->stuff,curr_obj_name,tmph->stuff);
+						free((void*)tmph->stuff->name);
+						tmph->stuff->name=cstr(&curr_obj_name);
 					}
 				}
 				else
