@@ -218,6 +218,11 @@ struct cpcjp_json_val *cpcjp_init_str(const char *str)
 	val->stuff->str = mk_from_cstr(str);
 	return val;
 }
+void cpcjp_erase_from_list(struct cpcjp_json_val *list, size_t ind)
+{
+	cpcjp_free_val(cpcds_vec_get_at_cpcjp_json_list(&list->stuff->list, ind));
+	cpcds_vec_erase_single_cpcjp_json_list(&list->stuff->list, ind);
+}
 void cpcjp_erase_from_obj(struct cpcjp_json_val *obj, const char *name)
 {
 	cppstring namestr = mk_from_cstr(name);
