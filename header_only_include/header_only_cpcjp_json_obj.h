@@ -24,8 +24,8 @@ define_cpcds_vector(cpcjp_json_list,cpcjp_json_val)
 define_cpcds_deque(cpcjp_free_helper,cpcjp_json_val)
 struct cpcjp_json_iter
 {
-	struct cpcds_umiter_cpcjp_json_map*iter;
-	struct cpcds_umiter_cpcjp_json_map*end;
+	struct cpcds_umiter_cpcjp_json_map iter;
+	struct cpcds_umiter_cpcjp_json_map end;
 };
 union iocjv
 {
@@ -50,6 +50,26 @@ struct cpcjp_dump_helper
 };
 define_cpcds_vector(cpcjp_dump_helper,struct cpcjp_dump_helper)
 typedef struct cpcjp_json_val*cpcjp_json_val;
+struct cppstring cpcjp_iter_key(struct cpcjp_json_iter *iter)
+{
+	return cpcds_um_iter_get_cpcjp_json_map(&iter->iter).key;
+}
+struct cpcjp_json_val *cpcjp_iter_val(struct cpcjp_json_iter *iter)
+{
+	return cpcds_um_iter_get_cpcjp_json_map(&iter->iter).val;
+}
+void cpcjp_iter_next(struct cpcjp_json_iter *iter)
+{
+	cpcds_um_iter_next_cpcjp_json_map(&iter->iter);
+}
+bool cpcjp_iter_ended(struct cpcjp_json_iter *iter)
+{
+	return cpcds_um_iter_equal_cpcjp_json_map(iter->iter, iter->end);
+}
+void cpcjp_destr_iter(struct cpcjp_json_iter *iter)
+{
+	free(iter);
+}
 void cpcjp_insert_num_into_obj(struct cpcjp_json_val *val,const char *key,double n)
 {
 	if(val->type != CPCJP_OBJ)
@@ -268,6 +288,13 @@ struct cpcjp_json_val *cpcjp_obj_get(struct cpcjp_json_val *obj, const char *n)
 	struct cpcjp_json_val *v = cpcds_um_get_cpcjp_json_map((struct cpcds_um_cpcjp_json_map*)obj->stuff, ns);
 	cpcds_destr_str(ns);
 	return v;
+}
+struct cpcjp_json_iter *cpcjp_obj_iter(struct cpcjp_json_val *obj)
+{
+	struct cpcjp_json_iter *iter = malloc(sizeof(struct cpcjp_json_iter));
+	iter->iter = cpcds_um_iter_begin_cpcjp_json_map(&obj->stuff->obj);
+	iter->end = cpcds_um_iter_end_cpcjp_json_map(&obj->stuff->obj);
+	return iter;
 }
 void cpcjp_list_clear(struct cpcjp_json_val* list)
 {

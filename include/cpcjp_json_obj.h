@@ -47,6 +47,7 @@ size_t cpcjp_val_size(struct cpcjp_json_val*);
 struct cpcjp_json_val *cpcjp_list_get(struct cpcjp_json_val*, size_t);
 int cpcjp_obj_has(struct cpcjp_json_val*, const char*);
 struct cpcjp_json_val *cpcjp_obj_get(struct cpcjp_json_val*, const char*);
+struct cpcjp_json_iter *cpcjp_obj_iter(struct cpcjp_json_val*);
 void cpcjp_list_clear(struct cpcjp_json_val*);
 void cpcjp_obj_clear(struct cpcjp_json_val*);
 void cpcjp_free_val(struct cpcjp_json_val*);
