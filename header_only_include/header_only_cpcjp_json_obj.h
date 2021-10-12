@@ -481,9 +481,14 @@ struct cppstring cpcjp_dump_obj(struct cpcjp_json_val*val)
 	cpcio_close_ostream(os);
 	return str;
 }
+bool cpcjp____val_ptr_eq(struct cpcjp_json_val *x, struct cpcjp_json_val *y)
+{
+	return x == y;
+}
 void cpcjp_free_val(struct cpcjp_json_val *val)
 {
 	struct cpcds_deque_cpcjp_free_helper q = cpcds_mk_deque_empty_cpcjp_free_helper();
+	struct cpcds_vector_cpcjp_json_list already_freed = cpcds_mk_vec_default_cpcjp_json_list();
 	switch(val->type)
 	{
 		case CPCJP_LIST:
@@ -501,6 +506,8 @@ void cpcjp_free_val(struct cpcjp_json_val *val)
 	while(q.size)
 	{
 		val = cpcds_queue_poll_cpcjp_free_helper(&q);
+		if(cpcds_vec_find_value_cpcjp_json_list(&already_freed, val, cpcjp____val_ptr_eq) != -1)
+			continue;
 		switch(val->type)
 		{
 			case CPCJP_LIST:
@@ -518,8 +525,10 @@ void cpcjp_free_val(struct cpcjp_json_val *val)
 		}
 		if(val->stuff)
 			free(val->stuff);
+		cpcds_vec_append_single_cpcjp_json_list(&already_freed, val);
 		free(val);
 	}
+	cpcds_vec_destr_cpcjp_json_list(&already_freed);
 	cpcds_deque_clear_cpcjp_free_helper(&q);
 }
 #endif
