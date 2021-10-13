@@ -2,6 +2,8 @@
 #ifndef Included_cpcjp_json_obj_h
 #define Included_cpcjp_json_obj_h
 #include<stdbool.h>
+#include<stdio.h>
+#include<cpcio_ostream.h>
 struct cppstring;
 enum cpcjp_val_types
 {CPCJP_NULL,CPCJP_BOOL,CPCJP_LIST,CPCJP_NUM,CPCJP_OBJ,CPCJP_STR};
@@ -30,8 +32,10 @@ struct cpcjp_json_val *cpcjp_init_num(double);
 struct cpcjp_json_val *cpcjp_init_list(void);
 struct cpcjp_json_val *cpcjp_init_str(const char*);
 struct cpcjp_json_val *cpcjp_nullptr_val(void);
-void cpcjp_insert_str_into_obj(struct cpcjp_json_val*,const char*,const char*);
 struct cppstring cpcjp_dump_obj(struct cpcjp_json_val*);
+int cpcjp_dump_obj_into_file(FILE*,struct cpcjp_json_val*);
+int cpcjp_dump_obj_into_stream(cpcio_ostream,struct cpcjp_json_val*);
+void cpcjp_insert_str_into_obj(struct cpcjp_json_val*,const char*,const char*);
 void cpcjp_insert_num_into_obj(struct cpcjp_json_val*,const char*,double);
 void cpcjp_insert_bool_into_obj(struct cpcjp_json_val*,const char*,int);
 void cpcjp_insert_val_into_obj(struct cpcjp_json_val*,const char*,struct cpcjp_json_val*);
