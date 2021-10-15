@@ -54,6 +54,7 @@ struct cpcjp_json_val *cpcjp_obj_get(struct cpcjp_json_val*, const char*);
 struct cpcjp_json_iter *cpcjp_obj_iter(struct cpcjp_json_val*);
 void cpcjp_list_clear(struct cpcjp_json_val*);
 void cpcjp_obj_clear(struct cpcjp_json_val*);
+struct cpcjp_json_val*cpcjp_copy_val(struct cpcjp_json_val*);
 void cpcjp_free_val(struct cpcjp_json_val*);
 typedef struct cpcjp_json_val*cpcjp_json_val;
 typedef struct cpcjp_json_iter*cpcjp_json_iter;

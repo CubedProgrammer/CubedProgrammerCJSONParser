@@ -318,6 +318,54 @@ void cpcjp_obj_clear(struct cpcjp_json_val* obj)
 		cpcds_destr_str(keys[i]);
 	}
 }
+struct cpcjp_json_val *cpcjp_copy_val(struct cpcjp_json_val *og)
+{
+	struct cpcjp_json_val *new = malloc(sizeof(struct cpcjp_json_val));
+	cpcds_vector_cpcjp_json_list tocpy = cpcds_mk_vec_default_cpcjp_json_list(), dests = cpcds_mk_vec_default_cpcjp_json_list();
+	cpcds_vector_cpcjp_json_list *tcptr = &tocpy, *dptr = &dests;
+	cpcds_vec_append_single_cpcjp_json_list(tcptr, og);
+	cpcds_vec_append_single_cpcjp_json_list(dptr, new);
+	struct cpcjp_json_val *val, *dest;
+	struct cpcds_umiter_cpcjp_json_map it;
+	while(tocpy.size)
+	{
+		val = cpcds_vec_erase_single_cpcjp_json_list(tcptr, tocpy.size - 1);
+		dest = cpcds_vec_erase_single_cpcjp_json_list(dptr, dests.size - 1);
+		dest->type = val->type;
+		dest->stuff = malloc(sizeof(*dest->stuff));
+		switch(og->type)
+		{
+			case CPCJP_OBJ:
+				dest->stuff->obj = cpcds_mk_um_empty_cpcjp_json_map();
+				for(it = cpcds_um_iter_begin_cpcjp_json_map(&val->stuff->obj); !cpcds_um_iter_equal_cpcjp_json_map(it, cpcds_um_iter_end_cpcjp_json_map(&val->stuff->obj)); cpcds_um_iter_next_cpcjp_json_map(&it))
+				{
+					cpcds_um_insert_cpcjp_json_map(&dest->stuff->obj, cpcds_um_iter_get_cpcjp_json_map(&it).key, malloc(sizeof(struct cpcjp_json_val)));
+					cpcds_vec_append_single_cpcjp_json_list(tcptr, cpcds_um_iter_get_cpcjp_json_map(&it).val);
+					cpcds_vec_append_single_cpcjp_json_list(dptr, cpcds_um_get_cpcjp_json_map(&dest->stuff->obj, cpcds_um_iter_get_cpcjp_json_map(&it).key));
+				}
+				break;
+			case CPCJP_LIST:
+				dest->stuff->list = cpcds_mk_vec_room_cpcjp_json_list(val->stuff->list.size);
+				for(size_t i = 0; i < val->stuff->list.size; ++i)
+				{
+					cpcds_vec_append_single_cpcjp_json_list(&dest->stuff->list, malloc(sizeof(struct cpcjp_json_val)));
+					cpcds_vec_append_single_cpcjp_json_list(tcptr, cpcds_vec_get_at_cpcjp_json_list(&val->stuff->list, i));
+					cpcds_vec_append_single_cpcjp_json_list(dptr, cpcds_vec_get_at_cpcjp_json_list(&dest->stuff->list, i));
+				}
+				break;
+			case CPCJP_STR:
+				dest->stuff->str = cpycppstr(val->stuff->str);
+				break;
+			case CPCJP_BOOL:
+				dest->stuff->tof = val->stuff->tof;
+				break;
+			case CPCJP_NUM:
+				dest->stuff->num = val->stuff->num;
+				break;
+		}
+	}
+	return new;
+}
 int cpcjp_dump_obj_into_file(FILE *f,struct cpcjp_json_val *val)
 {
 	cppstring str = cpcjp_dump_obj(val);
