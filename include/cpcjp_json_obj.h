@@ -46,6 +46,7 @@ void cpcjp_insert_str_into_list(struct cpcjp_json_val*,size_t,const char*);
 void cpcjp_insert_val_into_list(struct cpcjp_json_val*,size_t,struct cpcjp_json_val*);
 void cpcjp_insert_null_into_list(struct cpcjp_json_val*,size_t);
 void cpcjp_erase_from_list(struct cpcjp_json_val*,size_t);
+void cpcjp_erase_value_from_list(struct cpcjp_json_val*list,struct cpcjp_json_val*val);
 void cpcjp_erase_from_obj(struct cpcjp_json_val*,const char*);
 size_t cpcjp_val_size(struct cpcjp_json_val*);
 struct cpcjp_json_val *cpcjp_list_get(struct cpcjp_json_val*, size_t);
