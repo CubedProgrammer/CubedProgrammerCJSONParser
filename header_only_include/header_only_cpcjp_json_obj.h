@@ -48,6 +48,15 @@ struct cpcjp_dump_helper
 	enum cpcjp____dump_helper_status status;
 	bool is_self_containing;
 };
+bool cpcjp____val_ptr_eq(struct cpcjp_json_val *x, struct cpcjp_json_val *y)
+{
+	return x == y;
+}
+cpcds_hash_v cpcjp____val_ptr_hash(struct cpcjp_json_val *val)
+{
+	return(cpcds_hash_v)val;
+}
+define_cpcds_um(cpcjp_cpy_helper,struct cpcjp_json_val*,struct cpcjp_json_val*,cpcjp____val_ptr_eq,cpcjp____val_ptr_hash)
 define_cpcds_vector(cpcjp_dump_helper,struct cpcjp_dump_helper)
 typedef struct cpcjp_json_val*cpcjp_json_val;
 struct cppstring cpcjp_iter_key(struct cpcjp_json_iter *iter)
@@ -187,10 +196,6 @@ void cpcjp_insert_null_into_list(struct cpcjp_json_val *list, size_t ind)
 		cpcds_vec_append_single_cpcjp_json_list(&list->stuff->list, cpcjp_nullptr_val());
 	else
 		cpcds_vec_insert_single_cpcjp_json_list(&list->stuff->list, ind, cpcjp_nullptr_val());
-}
-bool cpcjp____val_ptr_eq(struct cpcjp_json_val *x, struct cpcjp_json_val *y)
-{
-	return x == y;
 }
 struct cpcjp_json_val *cpcjp_init_obj(void)
 {
@@ -332,9 +337,10 @@ struct cpcjp_json_val *cpcjp_copy_val(struct cpcjp_json_val *og)
 	struct cpcjp_json_val *new = malloc(sizeof(struct cpcjp_json_val));
 	cpcds_vector_cpcjp_json_list tocpy = cpcds_mk_vec_default_cpcjp_json_list(), dests = cpcds_mk_vec_default_cpcjp_json_list();
 	cpcds_vector_cpcjp_json_list *tcptr = &tocpy, *dptr = &dests;
-	//cpcds_vector_cpcjp_json_list ancest = cpcds_mk_vec_default_cpcjp_json_list(), *aptr = &ancest;
+	cpcds_um_cpcjp_cpy_helper corres = cpcds_mk_um_empty_cpcjp_cpy_helper(), *cptr = &corres;
 	cpcds_vec_append_single_cpcjp_json_list(tcptr, og);
 	cpcds_vec_append_single_cpcjp_json_list(dptr, new);
+	cpcds_um_insert_cpcjp_cpy_helper(cptr, og, new);
 	struct cpcjp_json_val *val, *dest;
 	struct cpcjp_json_val *tmp;
 	cppstring name;
@@ -351,9 +357,15 @@ struct cpcjp_json_val *cpcjp_copy_val(struct cpcjp_json_val *og)
 				dest->stuff->obj = cpcds_mk_um_empty_cpcjp_json_map();
 				for(it = cpcds_um_iter_begin_cpcjp_json_map(&val->stuff->obj); !cpcds_um_iter_equal_cpcjp_json_map(it, cpcds_um_iter_end_cpcjp_json_map(&val->stuff->obj)); cpcds_um_iter_next_cpcjp_json_map(&it))
 				{
-					cpcds_um_insert_cpcjp_json_map(&dest->stuff->obj, name = cpycppstr(cpcds_um_iter_get_cpcjp_json_map(&it).key), tmp = malloc(sizeof(struct cpcjp_json_val)));
-					cpcds_vec_append_single_cpcjp_json_list(tcptr, cpcds_um_iter_get_cpcjp_json_map(&it).val);
-					cpcds_vec_append_single_cpcjp_json_list(dptr, cpcds_um_get_cpcjp_json_map(&dest->stuff->obj, cpcds_um_iter_get_cpcjp_json_map(&it).key));
+					tmp = cpcds_um_iter_get_cpcjp_json_map(&it).val;
+					if(cpcds_um_fnd_key_cpcjp_cpy_helper(cptr, tmp))
+						cpcds_um_insert_cpcjp_json_map(&dest->stuff->obj, name = cpycppstr(cpcds_um_iter_get_cpcjp_json_map(&it).key), tmp = cpcds_um_get_cpcjp_cpy_helper(cptr, tmp));
+					else
+					{
+						cpcds_um_insert_cpcjp_json_map(&dest->stuff->obj, name = cpycppstr(cpcds_um_iter_get_cpcjp_json_map(&it).key), tmp = malloc(sizeof(struct cpcjp_json_val)));
+						cpcds_vec_append_single_cpcjp_json_list(tcptr, cpcds_um_iter_get_cpcjp_json_map(&it).val);
+						cpcds_vec_append_single_cpcjp_json_list(dptr, cpcds_um_get_cpcjp_json_map(&dest->stuff->obj, cpcds_um_iter_get_cpcjp_json_map(&it).key));
+					}
 					tmp->name = cstr(&name);
 				}
 				break;
@@ -361,9 +373,15 @@ struct cpcjp_json_val *cpcjp_copy_val(struct cpcjp_json_val *og)
 				dest->stuff->list = cpcds_mk_vec_room_cpcjp_json_list(val->stuff->list.size);
 				for(size_t i = 0; i < val->stuff->list.size; ++i)
 				{
-					cpcds_vec_append_single_cpcjp_json_list(&dest->stuff->list, malloc(sizeof(struct cpcjp_json_val)));
-					cpcds_vec_append_single_cpcjp_json_list(tcptr, cpcds_vec_get_at_cpcjp_json_list(&val->stuff->list, i));
-					cpcds_vec_append_single_cpcjp_json_list(dptr, cpcds_vec_get_at_cpcjp_json_list(&dest->stuff->list, i));
+					tmp = cpcds_vec_get_at_cpcjp_json_list(&val->stuff->list, i);
+					if(cpcds_um_fnd_key_cpcjp_cpy_helper(cptr, tmp))
+						cpcds_vec_append_single_cpcjp_json_list(&dest->stuff->list, cpcds_um_get_cpcjp_cpy_helper(cptr, tmp));
+					else
+					{
+						cpcds_vec_append_single_cpcjp_json_list(&dest->stuff->list, malloc(sizeof(struct cpcjp_json_val)));
+						cpcds_vec_append_single_cpcjp_json_list(tcptr, cpcds_vec_get_at_cpcjp_json_list(&val->stuff->list, i));
+						cpcds_vec_append_single_cpcjp_json_list(dptr, cpcds_vec_get_at_cpcjp_json_list(&dest->stuff->list, i));
+					}
 				}
 				break;
 			case CPCJP_STR:
