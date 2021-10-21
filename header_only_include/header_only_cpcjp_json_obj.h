@@ -18,7 +18,7 @@
 #define COMMA ','
 #define cpcjp_is_alphanumeric(__ch__)(((__ch__)<='9'&&(__ch__)>='0')||((__ch__)<='Z'&&(__ch__)>='A')||((__ch__)<='z'&&(__ch__)>='a'))
 #define cpcjp_is_whitespace(__ch__)((__ch__)==' '||(__ch__)=='\n'||(__ch__)=='\t')
-#define cpcjp_make_cdh(__helper__,val__,__status__)do {  __helper__.stuff=val__;__helper__.status=__status__;  } while (0)
+#define cpcjp_make_cdh(__helper__,val__,__status__)do {  __helper__.name = NULL;__helper__.stuff=val__;__helper__.status=__status__;  } while (0)
 define_cpcds_um(cpcjp_json_map,struct cppstring,struct cpcjp_json_val*,str_equal_values,cpcds_hash_str)
 define_cpcds_vector(cpcjp_json_list,cpcjp_json_val)
 define_cpcds_deque(cpcjp_free_helper,cpcjp_json_val)
@@ -47,6 +47,7 @@ struct cpcjp_dump_helper
 	struct cpcjp_json_val*stuff;
 	enum cpcjp____dump_helper_status status;
 	bool is_self_containing;
+	const char *name;
 };
 bool cpcjp____val_ptr_eq(struct cpcjp_json_val *x, struct cpcjp_json_val *y)
 {
@@ -449,10 +450,10 @@ struct cppstring cpcjp_dump_obj(struct cpcjp_json_val*val)
 		fflush(stdout);
 		printf("stuff: %d\n",tmp.stuff->name);
 		fflush(stdout);*/
-		if(stk->size>0&&tmp.status==DUMP_HELPER_PENDING&&tmp.stuff->name!=NULL)
+		if(stk->size>0&&tmp.status==DUMP_HELPER_PENDING&&tmp.name!=NULL)
 		{
 			cpcio_putc_os(os, DQUOTE);
-			cpcio_puts_os(os,tmp.stuff->name);
+			cpcio_puts_os(os,tmp.name);
 			cpcio_putc_os(os, DQUOTE);
 			cpcio_puts_os(os," : ");
 			/*printf(tmp.stuff->name);
@@ -519,12 +520,6 @@ struct cppstring cpcjp_dump_obj(struct cpcjp_json_val*val)
 						cpcds_vec_append_single_cpcjp_dump_helper(stk,tmp);
 					}
 
-					/*if(tmp.stuff->name)
-					{
-						printf(tmp.stuff->name);
-						printf("\n");
-						fflush(stdout);
-					}*/
 					// add the left square bracket
 					cpcio_putc_os(os,LSQRBR);
 					__comma = false;
@@ -550,6 +545,8 @@ struct cppstring cpcjp_dump_obj(struct cpcjp_json_val*val)
 					while(!cpcds_um_iter_equal_cpcjp_json_map(it, cpcds_um_iter_end_cpcjp_json_map(&tmpo)))
 					{
 						cpcjp_make_cdh(tmp, cpcds_um_iter_get_cpcjp_json_map(&it).val, DUMP_HELPER_PENDING);
+						tmps = cpcds_um_iter_get_cpcjp_json_map(&it).key;
+						tmp.name = cstr(&tmps);
 						tmp.is_self_containing = false;
 						for(size_t i = 0;i < stk->size;i++)
 						{
