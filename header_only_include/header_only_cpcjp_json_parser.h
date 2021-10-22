@@ -3,44 +3,6 @@
 #define Included_header_only_json_obj_parser_h
 #include<cpcjp_json_obj.h>
 #include<cpcjp_json_parser.h>
-/*struct cpcjp_json_val*cpcjp_get_elem(struct cpcjp_json_obj*obj,struct cppstring str)
-{
-	return cpcds_um_get_cpcjp_json_map(obj->objmp,str);
-}
-void cpcjp_set_elem(struct cpcjp_json_obj*obj,struct cppstring str,struct cpcjp_json_val*v)
-{
-	cpcds_um_insert_cpcjp_json_map(obj->objmp,str,v);
-}
-struct cpcjp_json_iter*cpcjp_get_iter(struct cpcjp_json_obj*obj)
-{
-	struct cpcjp_json_iter*it=(struct cpcjp_json_iter*)malloc(sizeof(struct cpcjp_json_iter*));
-	it->iter=(struct cpcds_umiter_cpcjp_json_map*)malloc(sizeof(struct cpcds_umiter_cpcjp_json_map));
-	it->end=(struct cpcds_umiter_cpcjp_json_map*)malloc(sizeof(struct cpcds_umiter_cpcjp_json_map));
-	*it->iter=cpcds_um_iter_begin_cpcjp_json_map(obj->objmp);
-	*it->end=cpcds_um_iter_end_cpcjp_json_map(obj->objmp);
-	return it;
-}*/
-/*struct cppstring cpcjp_iter_key(struct cpcjp_json_iter*it)
-{
-	return cpcds_um_iter_get_cpcjp_json_map(it->iter).key;
-}
-struct cpcjp_json_val*cpcjp_iter_val(struct cpcjp_json_iter*it)
-{
-	return cpcds_um_iter_get_cpcjp_json_map(it->iter).val;
-}
-void cpcjp_iter_next(struct cpcjp_json_iter*it)
-{
-	cpcds_um_iter_next_cpcjp_json_map(it->iter);
-}
-bool cpcjp_iter_ended(struct cpcjp_json_iter*it)
-{
-	return cpcds_um_iter_equal_cpcjp_json_map(*it->iter,*it->end);
-}
-void cpcjp_destr_iter(struct cpcjp_json_iter*it)
-{
-	free(it->iter);
-	free(it->end);
-}*/
 struct cpcjp_parse_helper*cpcjp_mk_helper(struct cpcjp_json_val*stuff,struct cpcjp_parse_helper*up)
 {
 	struct cpcjp_parse_helper*x=(struct cpcjp_parse_helper*)malloc(sizeof(struct cpcjp_parse_helper));
@@ -151,7 +113,7 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 				}
 				else
 				{
-					tmpj=(struct cpcjp_json_val*)malloc(sizeof(struct cpcjp_json_val));
+					tmpj=cpcjp_malloc();
 					tmpj->stuff=malloc(sizeof(union iocjv));
 					tmpj->stuff->str=curr_obj_dat;
 					tmpj->type=CPCJP_STR;
@@ -174,7 +136,7 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 				}
 				break;
 			case LSQRBR:
-				tmpj=(struct cpcjp_json_val*)malloc(sizeof(struct cpcjp_json_val));
+				tmpj=cpcjp_malloc();
 				tmpj->stuff=(union iocjv*)malloc(sizeof(union iocjv));
 				tmpj->stuff->list=cpcds_mk_vec_default_cpcjp_json_list();
 				tmpj->type=CPCJP_LIST;
@@ -214,7 +176,7 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 				//fflush(stdout);
 				break;
 			case LBRACE:
-				tmpj=(struct cpcjp_json_val*)malloc(sizeof(struct cpcjp_json_val));
+				tmpj=cpcjp_malloc();
 				tmpj->stuff=(union iocjv*)malloc(sizeof(union iocjv));
 				tmpj->stuff->obj=cpcds_mk_um_empty_cpcjp_json_map();
 				tmpj->type=CPCJP_OBJ;
@@ -280,7 +242,7 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 					if(curr_obj_dat.len)
 					{
 						top=cpcjp_mk_helper(NULL,top);
-						top->stuff=(struct cpcjp_json_val*)malloc(sizeof(struct cpcjp_json_val));
+						top->stuff=cpcjp_malloc();
 						if(str_char_at(&curr_obj_dat,0)>='0'&&str_char_at(&curr_obj_dat,0)<='9'||str_char_at(&curr_obj_dat,0)=='+'||str_char_at(&curr_obj_dat,0)=='-')
 						{
 							top->stuff->type=CPCJP_NUM;

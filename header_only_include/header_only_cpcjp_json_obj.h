@@ -49,6 +49,14 @@ struct cpcjp_dump_helper
 	bool is_self_containing;
 	const char *name;
 };
+
+#ifdef DEBUG
+// total objects allocated
+size_t cpcjp____ta;
+// total objects deallocated
+size_t cpcjp____td;
+#endif
+
 bool cpcjp____val_ptr_eq(struct cpcjp_json_val *x, struct cpcjp_json_val *y)
 {
 	return x == y;
@@ -82,49 +90,15 @@ void cpcjp_destr_iter(struct cpcjp_json_iter *iter)
 }
 void cpcjp_insert_num_into_obj(struct cpcjp_json_val *val,const char *key,double n)
 {
-	if(val->type != CPCJP_OBJ)
-	{
-		fprintf(stderr, "Error: Function cpcjp_insert_num_into_obj requires the value to be of object type!\n");
-	}
-	else
-	{
-		struct cpcjp_json_val *num = cpcjp_init_num(n);
-		num->name = key;
-		num->tofree = 0;
-		cpcds_um_insert_cpcjp_json_map(&val->stuff->obj, mk_from_cstr(key), num);
-	}
+	cpcjp_insert_val_into_obj(val, key, cpcjp_init_num(n));
 }
 void cpcjp_insert_bool_into_obj(struct cpcjp_json_val *val,const char *key,int n)
 {
-	if(val->type != CPCJP_OBJ)
-	{
-		fprintf(stderr, "Error: Function cpcjp_insert_bool_into_obj requires the value to be of object type!\n");
-	}
-	else
-	{
-		struct cpcjp_json_val *b = cpcjp_init_bool(n);
-		b->name = key;
-		b->tofree = 0;
-		cpcds_um_insert_cpcjp_json_map(&val->stuff->obj, mk_from_cstr(key), b);
-	}
+	cpcjp_insert_val_into_obj(val, key, cpcjp_init_bool(n));
 }
 void cpcjp_insert_str_into_obj(struct cpcjp_json_val *val, const char *key, const char *str)
 {
-	if(val->type != CPCJP_OBJ)
-	{
-		fprintf(stderr, "Error: Function cpcjp_insert_str_into_obj requires the value to be of object type!\n");
-	}
-	else
-	{
-		struct cpcjp_json_val *new = malloc(sizeof(struct cpcjp_json_val));
-		new->name = key;
-		new->stuff = malloc(sizeof(*new->stuff));
-		new->stuff->str = mk_from_cstr(str);
-		new->type = CPCJP_STR;
-		new->tofree = 0;
-
-		cpcds_um_insert_cpcjp_json_map(&val->stuff->obj, mk_from_cstr(key), new);
-	}
+	cpcjp_insert_val_into_obj(val, key, cpcjp_init_str(str));
 }
 void cpcjp_insert_val_into_obj(struct cpcjp_json_val *obj, const char *key, struct cpcjp_json_val *val)
 {
@@ -141,44 +115,19 @@ void cpcjp_insert_val_into_obj(struct cpcjp_json_val *obj, const char *key, stru
 }
 void cpcjp_insert_null_into_obj(struct cpcjp_json_val *val, const char *key)
 {
-	if(val->type != CPCJP_OBJ)
-	{
-		fprintf(stderr, "Error: Function cpcjp_insert_null_into_obj requires the value to be of object type!\n");
-	}
-	else
-	{
-		struct cpcjp_json_val *nullptr = cpcjp_nullptr_val();
-		nullptr->name = key;
-		nullptr->tofree = 0;
-		cpcds_um_insert_cpcjp_json_map(&val->stuff->obj, mk_from_cstr(key), nullptr);
-	}
+	cpcjp_insert_val_into_obj(val, key, cpcjp_malloc());
 }
 void cpcjp_insert_num_into_list(struct cpcjp_json_val *list, size_t ind, double n)
 {
-	if(list->type != CPCJP_LIST)
-		fprintf(stderr, "Error: Function cpcjp_insert_num_into_list requires the value to be of list type!\n");
-	else if(ind == list->stuff->list.size)
-		cpcds_vec_append_single_cpcjp_json_list(&list->stuff->list, cpcjp_init_num(n));
-	else
-		cpcds_vec_insert_single_cpcjp_json_list(&list->stuff->list, ind, cpcjp_init_num(n));
+	cpcjp_insert_val_into_list(list, ind, cpcjp_init_num(n));
 }
 void cpcjp_insert_bool_into_list(struct cpcjp_json_val *list, size_t ind, int n)
 {
-	if(list->type != CPCJP_LIST)
-		fprintf(stderr, "Error: Function cpcjp_insert_bool_into_list requires the value to be of list type!\n");
-	else if(ind == list->stuff->list.size)
-		cpcds_vec_append_single_cpcjp_json_list(&list->stuff->list, cpcjp_init_bool(n));
-	else
-		cpcds_vec_insert_single_cpcjp_json_list(&list->stuff->list, ind, cpcjp_init_bool(n));
+	cpcjp_insert_val_into_list(list, ind, cpcjp_init_bool(n));
 }
 void cpcjp_insert_str_into_list(struct cpcjp_json_val *list, size_t ind, const char *str)
 {
-	if(list->type != CPCJP_LIST)
-		fprintf(stderr, "Error: Function cpcjp_insert_str_into_list requires the value to be of list type!\n");
-	else if(ind == list->stuff->list.size)
-		cpcds_vec_append_single_cpcjp_json_list(&list->stuff->list, cpcjp_init_str(str));
-	else
-		cpcds_vec_insert_single_cpcjp_json_list(&list->stuff->list, ind, cpcjp_init_str(str));
+	cpcjp_insert_val_into_list(list, ind, cpcjp_init_str(str));
 }
 void cpcjp_insert_val_into_list(struct cpcjp_json_val *list, size_t ind, struct cpcjp_json_val *val)
 {
@@ -191,17 +140,11 @@ void cpcjp_insert_val_into_list(struct cpcjp_json_val *list, size_t ind, struct 
 }
 void cpcjp_insert_null_into_list(struct cpcjp_json_val *list, size_t ind)
 {
-	if(list->type != CPCJP_LIST)
-		fprintf(stderr, "Error: Function cpcjp_insert_null_into_list requires the value to be of list type!\n");
-	else if(ind == list->stuff->list.size)
-		cpcds_vec_append_single_cpcjp_json_list(&list->stuff->list, cpcjp_nullptr_val());
-	else
-		cpcds_vec_insert_single_cpcjp_json_list(&list->stuff->list, ind, cpcjp_nullptr_val());
+	cpcjp_insert_val_into_list(list, ind, cpcjp_malloc());
 }
 struct cpcjp_json_val *cpcjp_init_obj(void)
 {
-	struct cpcjp_json_val *val = malloc(sizeof(struct cpcjp_json_val));
-	val->name = NULL;
+	struct cpcjp_json_val *val = cpcjp_malloc();
 	val->stuff = malloc(sizeof(union iocjv));
 	val->type = CPCJP_OBJ;
 
@@ -210,8 +153,7 @@ struct cpcjp_json_val *cpcjp_init_obj(void)
 }
 struct cpcjp_json_val *cpcjp_init_bool(int v)
 {
-	struct cpcjp_json_val *val = malloc(sizeof(struct cpcjp_json_val));
-	val->name = NULL;
+	struct cpcjp_json_val *val = cpcjp_malloc();
 	val->stuff = malloc(sizeof(union iocjv));
 	val->type = CPCJP_BOOL;
 
@@ -220,8 +162,7 @@ struct cpcjp_json_val *cpcjp_init_bool(int v)
 }
 struct cpcjp_json_val *cpcjp_init_num(double v)
 {
-	struct cpcjp_json_val *val = malloc(sizeof(struct cpcjp_json_val));
-	val->name = NULL;
+	struct cpcjp_json_val *val = cpcjp_malloc();
 	val->stuff = malloc(sizeof(union iocjv));
 	val->type = CPCJP_NUM;
 
@@ -230,8 +171,7 @@ struct cpcjp_json_val *cpcjp_init_num(double v)
 }
 struct cpcjp_json_val *cpcjp_init_list(void)
 {
-	struct cpcjp_json_val *val = malloc(sizeof(struct cpcjp_json_val));
-	val->name = NULL;
+	struct cpcjp_json_val *val = cpcjp_malloc();
 	val->stuff = malloc(sizeof(union iocjv));
 	val->type = CPCJP_LIST;
 
@@ -240,12 +180,22 @@ struct cpcjp_json_val *cpcjp_init_list(void)
 }
 struct cpcjp_json_val *cpcjp_init_str(const char *str)
 {
-	struct cpcjp_json_val *val = malloc(sizeof(struct cpcjp_json_val));
-	val->name = NULL;
+	struct cpcjp_json_val *val = cpcjp_malloc();
 	val->stuff = malloc(sizeof(union iocjv));
 	val->type = CPCJP_STR;
 
 	val->stuff->str = mk_from_cstr(str);
+	return val;
+}
+struct cpcjp_json_val *cpcjp_malloc(void)
+{
+	struct cpcjp_json_val *val = malloc(sizeof(struct cpcjp_json_val));
+	val->name = NULL;
+	val->stuff = NULL;
+	val->type = CPCJP_NULL;
+#ifdef DEBUG
+	++cpcjp____ta;
+#endif
 	return val;
 }
 void cpcjp_erase_from_list(struct cpcjp_json_val *list, size_t ind)
@@ -263,14 +213,6 @@ void cpcjp_erase_from_obj(struct cpcjp_json_val *obj, const char *name)
 	cppstring namestr = mk_from_cstr(name);
 	cpcds_destr_str(cpcds_um_erase_key_cpcjp_json_map(&obj->stuff->obj, namestr));
 	cpcds_destr_str(namestr);
-}
-struct cpcjp_json_val *cpcjp_nullptr_val(void)
-{
-	struct cpcjp_json_val *val = malloc(sizeof(struct cpcjp_json_val));
-	val->name = NULL;
-	val->stuff = NULL;
-	val->type = CPCJP_NULL;
-	return val;
 }
 size_t cpcjp_val_size(struct cpcjp_json_val *val)
 {
@@ -335,7 +277,7 @@ void cpcjp_obj_clear(struct cpcjp_json_val* obj)
 }
 struct cpcjp_json_val *cpcjp_copy_val(struct cpcjp_json_val *og)
 {
-	struct cpcjp_json_val *new = malloc(sizeof(struct cpcjp_json_val));
+	struct cpcjp_json_val *new = cpcjp_malloc();
 	cpcds_vector_cpcjp_json_list tocpy = cpcds_mk_vec_default_cpcjp_json_list(), dests = cpcds_mk_vec_default_cpcjp_json_list();
 	cpcds_vector_cpcjp_json_list *tcptr = &tocpy, *dptr = &dests;
 	cpcds_um_cpcjp_cpy_helper corres = cpcds_mk_um_empty_cpcjp_cpy_helper(), *cptr = &corres;
@@ -363,7 +305,7 @@ struct cpcjp_json_val *cpcjp_copy_val(struct cpcjp_json_val *og)
 						cpcds_um_insert_cpcjp_json_map(&dest->stuff->obj, name = cpycppstr(cpcds_um_iter_get_cpcjp_json_map(&it).key), tmp = cpcds_um_get_cpcjp_cpy_helper(cptr, tmp));
 					else
 					{
-						cpcds_um_insert_cpcjp_json_map(&dest->stuff->obj, name = cpycppstr(cpcds_um_iter_get_cpcjp_json_map(&it).key), tmp = malloc(sizeof(struct cpcjp_json_val)));
+						cpcds_um_insert_cpcjp_json_map(&dest->stuff->obj, name = cpycppstr(cpcds_um_iter_get_cpcjp_json_map(&it).key), tmp = cpcjp_malloc());
 						cpcds_vec_append_single_cpcjp_json_list(tcptr, cpcds_um_iter_get_cpcjp_json_map(&it).val);
 						cpcds_vec_append_single_cpcjp_json_list(dptr, cpcds_um_get_cpcjp_json_map(&dest->stuff->obj, cpcds_um_iter_get_cpcjp_json_map(&it).key));
 					}
@@ -379,7 +321,7 @@ struct cpcjp_json_val *cpcjp_copy_val(struct cpcjp_json_val *og)
 						cpcds_vec_append_single_cpcjp_json_list(&dest->stuff->list, cpcds_um_get_cpcjp_cpy_helper(cptr, tmp));
 					else
 					{
-						cpcds_vec_append_single_cpcjp_json_list(&dest->stuff->list, malloc(sizeof(struct cpcjp_json_val)));
+						cpcds_vec_append_single_cpcjp_json_list(&dest->stuff->list, cpcjp_malloc());
 						cpcds_vec_append_single_cpcjp_json_list(tcptr, cpcds_vec_get_at_cpcjp_json_list(&val->stuff->list, i));
 						cpcds_vec_append_single_cpcjp_json_list(dptr, cpcds_vec_get_at_cpcjp_json_list(&dest->stuff->list, i));
 					}
@@ -446,19 +388,12 @@ struct cppstring cpcjp_dump_obj(struct cpcjp_json_val*val)
 		{
 			__comma=true;
 		}
-		/*printf("before %d, %d\n",tmp.status,tmp.stuff->type);
-		fflush(stdout);
-		printf("stuff: %d\n",tmp.stuff->name);
-		fflush(stdout);*/
 		if(stk->size>0&&tmp.status==DUMP_HELPER_PENDING&&tmp.name!=NULL)
 		{
 			cpcio_putc_os(os, DQUOTE);
 			cpcio_puts_os(os,tmp.name);
 			cpcio_putc_os(os, DQUOTE);
 			cpcio_puts_os(os," : ");
-			/*printf(tmp.stuff->name);
-			printf(" %d %d",tmp.stuff->type,tmp.stuff);
-			printf(" from name\n");*/
 			fflush(stdout);
 		}
 		switch(tmp.stuff->type)
@@ -478,7 +413,6 @@ struct cppstring cpcjp_dump_obj(struct cpcjp_json_val*val)
 				}
 				break;
 			case CPCJP_NUM:
-				//printf("num: %f\n",tmp.stuff->stuff->num);
 				fflush(stdout);
 				tmpn=tmp.stuff->stuff->num;
 				cpcio_putd_os(os,tmpn);
@@ -492,10 +426,6 @@ struct cppstring cpcjp_dump_obj(struct cpcjp_json_val*val)
 			case CPCJP_LIST:
 				if(tmp.status == DUMP_HELPER_OPENED)
 				{
-					/*printf(tmp.stuff->name);
-					printf("type: %d\n",tmp.status);
-					fflush(stdout);*/
-					// add the right square bracket
 					cpcio_putc_os(os,RSQRBR);
 				}
 				else if(tmp.is_self_containing)
@@ -574,6 +504,16 @@ struct cppstring cpcjp_dump_obj(struct cpcjp_json_val*val)
 	cpcio_close_ostream(os);
 	return str;
 }
+#ifdef DEBUG
+size_t cpcjp____tot_alloc(void)
+{
+	return cpcjp____ta;
+}
+size_t cpcjp____tot_dealloc(void)
+{
+	return cpcjp____td;
+}
+#endif
 void cpcjp_free_val(struct cpcjp_json_val *val)
 {
 	struct cpcds_deque_cpcjp_free_helper q = cpcds_mk_deque_empty_cpcjp_free_helper();
@@ -590,6 +530,9 @@ void cpcjp_free_val(struct cpcjp_json_val *val)
 			if(val->stuff)
 				free(val->stuff);
 			free(val);
+#ifdef DEBUG
+	++cpcjp____td;
+#endif
 			break;
 	}
 	while(q.size)
@@ -616,6 +559,9 @@ void cpcjp_free_val(struct cpcjp_json_val *val)
 			free(val->stuff);
 		cpcds_vec_append_single_cpcjp_json_list(&already_freed, val);
 		free(val);
+#ifdef DEBUG
+	++cpcjp____td;
+#endif
 	}
 	cpcds_vec_destr_cpcjp_json_list(&already_freed);
 	cpcds_deque_clear_cpcjp_free_helper(&q);
