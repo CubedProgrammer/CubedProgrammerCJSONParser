@@ -103,15 +103,9 @@ void cpcjp_insert_str_into_obj(struct cpcjp_json_val *val, const char *key, cons
 void cpcjp_insert_val_into_obj(struct cpcjp_json_val *obj, const char *key, struct cpcjp_json_val *val)
 {
 	if(obj->type != CPCJP_OBJ)
-	{
 		fprintf(stderr, "Error: Function cpcjp_insert_val_into_obj requires the value to be of object type!\n");
-	}
 	else
-	{
-		val->name = key;
-		val->tofree = 0;
 		cpcds_um_insert_cpcjp_json_map(&obj->stuff->obj, mk_from_cstr(key), val);
-	}
 }
 void cpcjp_insert_null_into_obj(struct cpcjp_json_val *val, const char *key)
 {
@@ -190,7 +184,6 @@ struct cpcjp_json_val *cpcjp_init_str(const char *str)
 struct cpcjp_json_val *cpcjp_malloc(void)
 {
 	struct cpcjp_json_val *val = malloc(sizeof(struct cpcjp_json_val));
-	val->name = NULL;
 	val->stuff = NULL;
 	val->type = CPCJP_NULL;
 #ifdef DEBUG
@@ -286,7 +279,6 @@ struct cpcjp_json_val *cpcjp_copy_val(struct cpcjp_json_val *og)
 	cpcds_um_insert_cpcjp_cpy_helper(cptr, og, new);
 	struct cpcjp_json_val *val, *dest;
 	struct cpcjp_json_val *tmp;
-	cppstring name;
 	struct cpcds_umiter_cpcjp_json_map it;
 	while(tocpy.size)
 	{
@@ -302,14 +294,13 @@ struct cpcjp_json_val *cpcjp_copy_val(struct cpcjp_json_val *og)
 				{
 					tmp = cpcds_um_iter_get_cpcjp_json_map(&it).val;
 					if(cpcds_um_fnd_key_cpcjp_cpy_helper(cptr, tmp))
-						cpcds_um_insert_cpcjp_json_map(&dest->stuff->obj, name = cpycppstr(cpcds_um_iter_get_cpcjp_json_map(&it).key), tmp = cpcds_um_get_cpcjp_cpy_helper(cptr, tmp));
+						cpcds_um_insert_cpcjp_json_map(&dest->stuff->obj, cpycppstr(cpcds_um_iter_get_cpcjp_json_map(&it).key), tmp = cpcds_um_get_cpcjp_cpy_helper(cptr, tmp));
 					else
 					{
-						cpcds_um_insert_cpcjp_json_map(&dest->stuff->obj, name = cpycppstr(cpcds_um_iter_get_cpcjp_json_map(&it).key), tmp = cpcjp_malloc());
+						cpcds_um_insert_cpcjp_json_map(&dest->stuff->obj, cpycppstr(cpcds_um_iter_get_cpcjp_json_map(&it).key), tmp = cpcjp_malloc());
 						cpcds_vec_append_single_cpcjp_json_list(tcptr, cpcds_um_iter_get_cpcjp_json_map(&it).val);
 						cpcds_vec_append_single_cpcjp_json_list(dptr, cpcds_um_get_cpcjp_json_map(&dest->stuff->obj, cpcds_um_iter_get_cpcjp_json_map(&it).key));
 					}
-					tmp->name = cstr(&name);
 				}
 				break;
 			case CPCJP_LIST:

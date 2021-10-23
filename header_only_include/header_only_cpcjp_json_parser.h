@@ -122,16 +122,9 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 					//cpcds_stdprint_cppstr(curr_obj_dat);
 					//printf(" is curr_obj_dat\n");
 					if(top->stuff->type==CPCJP_LIST)
-					{
 						cpcds_vec_append_single_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)top->stuff->stuff,tmpj);
-						tmpj->name=NULL;
-					}
 					else if(top->stuff->type==CPCJP_OBJ)
-					{
 						cpcds_um_insert_cpcjp_json_map((struct cpcds_um_cpcjp_json_map*)top->stuff->stuff,curr_obj_name,tmpj);
-						tmpj->name=cstr(&curr_obj_name);
-						tmpj->tofree = 1;
-					}
 					cpcio_ungetc_is(is);
 				}
 				break;
@@ -140,8 +133,6 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 				tmpj->stuff=(union iocjv*)malloc(sizeof(union iocjv));
 				tmpj->stuff->list=cpcds_mk_vec_default_cpcjp_json_list();
 				tmpj->type=CPCJP_LIST;
-				tmpj->name=cstr(&curr_obj_name);
-				tmpj->tofree = 1;
 				top=cpcjp_mk_helper(tmpj,top);
 				break;
 			case RSQRBR:
@@ -158,7 +149,6 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 				{
 					if(top->stuff->type==CPCJP_LIST)
 					{
-						tmph->stuff->name = NULL;
 						cpcds_vec_append_single_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)top->stuff->stuff,tmph->stuff);
 					}
 					else if(top->stuff->type==CPCJP_OBJ)
@@ -180,8 +170,6 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 				tmpj->stuff=(union iocjv*)malloc(sizeof(union iocjv));
 				tmpj->stuff->obj=cpcds_mk_um_empty_cpcjp_json_map();
 				tmpj->type=CPCJP_OBJ;
-				tmpj->name=cstr(&curr_obj_name);
-				tmpj->tofree = 1;
 				top=cpcjp_mk_helper(tmpj,top);
 				break;
 			case RBRACE:
@@ -190,31 +178,13 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 				if(top!=NULL)
 				{
 					if(top->stuff->type==CPCJP_LIST)
-					{
-						tmph->stuff->name = NULL;
 						cpcds_vec_append_single_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)top->stuff->stuff,tmph->stuff);
-					}
 					else if(top->stuff->type==CPCJP_OBJ)
-					{
-						curr_obj_name=mk_from_cstr(tmph->stuff->name);
 						cpcds_um_insert_cpcjp_json_map((struct cpcds_um_cpcjp_json_map*)top->stuff->stuff,curr_obj_name,tmph->stuff);
-						free((void*)tmph->stuff->name);
-						tmph->stuff->name=cstr(&curr_obj_name);
-					}
 				}
 				else
-				{
 					val=tmph->stuff;
-				}
 				free(tmph);
-				//cpcds_stdprint_cppstr(curr_obj_name);
-				//printf(" curly\n");
-				//fflush(stdout);
-				/*for(int i = 0; is->cbuf[i] != -1; ++i)
-				{
-					printf("%c",is->cbuf[i]);
-				}*/
-				//printf("\n");
 				break;
 			case-1:
 				break;
@@ -266,25 +236,14 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 							top->stuff->type=CPCJP_NULL;
 							top->stuff->stuff=NULL;
 						}
-						else
-						{
-							//cpcds_stdprint_cppstr(curr_obj_dat);
-						}
 						tmph = top;
 						top = top->up;
 						if(top!=NULL)
 						{
 							if(top->stuff->type==CPCJP_LIST)
-							{
-								tmph->stuff->name=NULL;
 								cpcds_vec_append_single_cpcjp_json_list((struct cpcds_vector_cpcjp_json_list*)top->stuff->stuff,tmph->stuff);
-							}
 							else if(top->stuff->type==CPCJP_OBJ)
-							{
-								tmph->stuff->name=cstr(&curr_obj_name);
-								tmph->stuff->tofree=1;
 								cpcds_um_insert_cpcjp_json_map((struct cpcds_um_cpcjp_json_map*)top->stuff->stuff,curr_obj_name,tmph->stuff);
-							}
 						}
 						else
 						{

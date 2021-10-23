@@ -12,8 +12,6 @@ struct cpcjp_json_val
 {
 	enum cpcjp_val_types type;
 	union iocjv*stuff;
-	const char*name;
-	int tofree;
 };
 struct cpcjp_json_iter;
 struct cpcjp_parse_helper;
