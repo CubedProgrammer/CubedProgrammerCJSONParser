@@ -1,6 +1,7 @@
 #ifndef __cplusplus
 #ifndef Included_header_only_cpcjp_json_obj_h
 #define Included_header_only_cpcjp_json_obj_h
+#include<stdint.h>
 #include<cpcds_vector.h>
 #include<cpcds_unordered_map.h>
 #include<cpcio_fstream.h>
