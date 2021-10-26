@@ -1,4 +1,4 @@
-#ifndef cplusplus
+#ifndef __cplusplus
 #ifndef Included_cpcjp_json_obj_h
 #define Included_cpcjp_json_obj_h
 #include<stdbool.h>
@@ -56,6 +56,7 @@ struct cpcjp_json_val*cpcjp_obj_get(struct cpcjp_json_val*,const char*);
 struct cpcjp_json_iter*cpcjp_obj_iter(struct cpcjp_json_val*);
 void cpcjp_list_clear(struct cpcjp_json_val*);
 void cpcjp_obj_clear(struct cpcjp_json_val*);
+int cpcjp_equals(struct cpcjp_json_val*,struct cpcjp_json_val*);
 struct cpcjp_json_val*cpcjp_copy_val(struct cpcjp_json_val*);
 #ifdef DEBUG
 size_t cpcjp____tot_alloc(void);

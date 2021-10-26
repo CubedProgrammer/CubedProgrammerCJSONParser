@@ -288,6 +288,78 @@ void cpcjp_obj_clear(struct cpcjp_json_val* obj)
 		cpcds_destr_str(keys[i]);
 	}
 }
+int cpcjp_equals(struct cpcjp_json_val *u,struct cpcjp_json_val *v)
+{
+	int eq = 1;
+	cpcds_vector_cpcjp_json_list ucont = cpcds_mk_vec_default_cpcjp_json_list(), vcont = cpcds_mk_vec_default_cpcjp_json_list();
+	cpcds_vector_cpcjp_json_list *ucptr = &ucont, *vcptr = &vcont;
+	cpcds_um_cpcjp_cpy_helper corres = cpcds_mk_um_empty_cpcjp_cpy_helper(), *cptr = &corres;
+	cpcds_vec_append_single_cpcjp_json_list(ucptr, u);
+	cpcds_vec_append_single_cpcjp_json_list(vcptr, v);
+	struct cpcjp_json_val *m, *n;
+	struct cpcjp_json_val *tmpv;
+	cppstring tmpn;
+	cpcds_umiter_cpcjp_json_map it;
+	while(ucont.size)
+	{
+		m = cpcds_vec_erase_single_cpcjp_json_list(ucptr, ucont.size - 1);
+		n = cpcds_vec_erase_single_cpcjp_json_list(vcptr, vcont.size - 1);
+		if(cpcds_um_fnd_key_cpcjp_cpy_helper(cptr, m) && n == cpcds_um_get_cpcjp_cpy_helper(cptr, m))
+			continue;
+		if(m->type == n->type)
+		{
+			cpcds_um_insert_cpcjp_cpy_helper(cptr, m, n);
+			switch(n->type)
+			{
+				case CPCJP_BOOL:
+					eq = eq && m->stuff->tof == n->stuff->tof;
+					break;
+				case CPCJP_LIST:
+					if(m->stuff->list.size == n->stuff->list.size)
+					{
+						for(size_t i = 0; i < n->stuff->list.size; ++i)
+						{
+							cpcds_vec_append_single_cpcjp_json_list(ucptr, cpcds_vec_get_at_cpcjp_json_list(&m->stuff->obj, i));
+							cpcds_vec_append_single_cpcjp_json_list(vcptr, cpcds_vec_get_at_cpcjp_json_list(&n->stuff->obj, i));
+						}
+					}
+					else
+						eq = 0;
+					break;
+				case CPCJP_NUM:
+					eq = eq && m->stuff->num == n->stuff->num;
+					break;
+				case CPCJP_OBJ:
+					if(m->stuff->obj.size == n->stuff->obj.size)
+					{
+						for(it = cpcds_um_iter_begin_cpcjp_json_map(&m->stuff->obj); !cpcds_um_iter_equal_cpcjp_json_map(it, cpcds_um_iter_end_cpcjp_json_map(&m->stuff->obj)); cpcds_um_iter_next_cpcjp_json_map(&it))
+						{
+							tmpn = cpcds_um_iter_get_cpcjp_json_map(&it).key;
+							tmpv = cpcds_um_iter_get_cpcjp_json_map(&it).val;
+							if(cpcds_um_fnd_key_cpcjp_json_map(&n->stuff->obj, tmpn))
+							{
+								cpcds_vec_append_single_cpcjp_json_list(ucptr, tmpv);
+								cpcds_vec_append_single_cpcjp_json_list(vcptr, cpcds_um_get_cpcjp_json_map(&n->stuff->obj, tmpn));
+							}
+							else
+								eq = 0;
+						}
+					}
+					else
+						eq = 0;
+					break;
+				case CPCJP_STR:
+					eq = eq && str_equal_values(m->stuff->str, n->stuff->str);
+					break;
+				default:
+					break;
+			}
+		}
+		else
+			eq = 0;
+	}
+	return eq;
+}
 struct cpcjp_json_val *cpcjp_copy_val(struct cpcjp_json_val *og)
 {
 	struct cpcjp_json_val *new = cpcjp_malloc();
