@@ -213,6 +213,20 @@ void cpcjp_erase_from_obj(struct cpcjp_json_val *obj, const char *name)
 	cpcds_destr_str(cpcds_um_erase_key_cpcjp_json_map(&obj->stuff->obj, namestr));
 	cpcds_destr_str(namestr);
 }
+void cpcjp_erase_from_list_nofree(struct cpcjp_json_val *list, size_t ind)
+{
+	cpcds_vec_erase_single_cpcjp_json_list(&list->stuff->list, ind);
+}
+void cpcjp_erase_value_from_list_nofree(struct cpcjp_json_val *list, struct cpcjp_json_val *val)
+{
+	cpcds_vec_remove_value_cpcjp_json_list(&list->stuff->list, val, cpcjp____val_ptr_eq);
+}
+void cpcjp_erase_from_obj_nofree(struct cpcjp_json_val *obj, const char *name)
+{
+	cppstring namestr = mk_from_cstr(name);
+	cpcds_destr_str(cpcds_um_erase_key_cpcjp_json_map(&obj->stuff->obj, namestr));
+	cpcds_destr_str(namestr);
+}
 size_t cpcjp_val_size(struct cpcjp_json_val *val)
 {
 	if(val->type == CPCJP_STR)
