@@ -319,8 +319,8 @@ int cpcjp_equals(struct cpcjp_json_val *u,struct cpcjp_json_val *v)
 					{
 						for(size_t i = 0; i < n->stuff->list.size; ++i)
 						{
-							cpcds_vec_append_single_cpcjp_json_list(ucptr, cpcds_vec_get_at_cpcjp_json_list(&m->stuff->obj, i));
-							cpcds_vec_append_single_cpcjp_json_list(vcptr, cpcds_vec_get_at_cpcjp_json_list(&n->stuff->obj, i));
+							cpcds_vec_append_single_cpcjp_json_list(ucptr, cpcds_vec_get_at_cpcjp_json_list(&m->stuff->list, i));
+							cpcds_vec_append_single_cpcjp_json_list(vcptr, cpcds_vec_get_at_cpcjp_json_list(&n->stuff->list, i));
 						}
 					}
 					else
