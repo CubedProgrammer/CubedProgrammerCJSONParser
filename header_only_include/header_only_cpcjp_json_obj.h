@@ -209,6 +209,7 @@ void cpcjp_erase_value_from_list(struct cpcjp_json_val *list, struct cpcjp_json_
 void cpcjp_erase_from_obj(struct cpcjp_json_val *obj, const char *name)
 {
 	cppstring namestr = mk_from_cstr(name);
+	cpcjp_free_val(cpcds_um_get_cpcjp_json_map(&obj->stuff->obj, namestr));
 	cpcds_destr_str(cpcds_um_erase_key_cpcjp_json_map(&obj->stuff->obj, namestr));
 	cpcds_destr_str(namestr);
 }
