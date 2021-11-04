@@ -32,7 +32,7 @@ struct cpcjp_json_val*cpcjp_init_list(void);
 struct cpcjp_json_val*cpcjp_init_str(const char*);
 struct cppstring cpcjp_dump_obj(struct cpcjp_json_val*);
 int cpcjp_dump_obj_into_file(FILE*,struct cpcjp_json_val*);
-int cpcjp_dump_obj_into_stream(cpcio_ostream,struct cpcjp_json_val*);
+void cpcjp_dump_obj_into_stream(cpcio_ostream,struct cpcjp_json_val*);
 void cpcjp_insert_str_into_obj(struct cpcjp_json_val*,const char*,const char*);
 void cpcjp_insert_num_into_obj(struct cpcjp_json_val*,const char*,double);
 void cpcjp_insert_bool_into_obj(struct cpcjp_json_val*,const char*,int);

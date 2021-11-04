@@ -433,16 +433,16 @@ int cpcjp_dump_obj_into_file(FILE *f,struct cpcjp_json_val *val)
 	cpcds_destr_str(str);
 	return succ;
 }
-int cpcjp_dump_obj_into_stream(cpcio_ostream os, struct cpcjp_json_val *val)
-{
-	cppstring str = cpcjp_dump_obj(val);
-	int succ = cpcio_wr(os, str.bytes, str.len) != str.len;
-	cpcds_destr_str(str);
-	return succ;
-}
 struct cppstring cpcjp_dump_obj(struct cpcjp_json_val*val)
 {
 	cpcio_ostream os=cpcio_open_osstream();
+	cpcjp_dump_obj_into_stream(os,val);
+	struct cppstring str=mk_from_cstr(cpcio_oss_str(os));
+	cpcio_close_ostream(os);
+	return str;
+}
+void cpcjp_dump_obj_into_stream(cpcio_ostream os, struct cpcjp_json_val *val)
+{
 	struct cpcds_vector_cpcjp_dump_helper stkv;
 	struct cpcds_vector_cpcjp_dump_helper*stk=&stkv;
 	stkv = cpcds_mk_vec_default_cpcjp_dump_helper();
@@ -583,9 +583,6 @@ struct cppstring cpcjp_dump_obj(struct cpcjp_json_val*val)
 		fflush(stdout);*/
 	}
 	cpcds_vec_destr_cpcjp_dump_helper(stk);
-	struct cppstring str=mk_from_cstr(cpcio_oss_str(os));
-	cpcio_close_ostream(os);
-	return str;
 }
 #ifdef DEBUG
 size_t cpcjp____tot_alloc(void)
