@@ -97,7 +97,6 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 				}
 				curr_obj_dat=mk_from_cstr(cpcio_oss_str(os));
 				cpcio_close_ostream(os);
-				free(os);
 				os = NULL;
 				do
 				{
@@ -197,7 +196,6 @@ struct cpcjp_json_val*cpcjp_parse_stream(cpcio_istream is)
 					//printf(", %d\n", ch);
 					fflush(stdout);
 					cpcio_close_ostream(os);
-					free(os);
 					os = NULL;
 					if(curr_obj_dat.len)
 					{
@@ -263,7 +261,6 @@ struct cpcjp_json_val*cpcjp_parse_cstr(const char*str)
 	struct cpcio____istream*is=cpcio_open_isstream(str);
 	struct cpcjp_json_val*val=cpcjp_parse_stream(is);
 	cpcio_close_istream(is);
-	free(is);
 	return val;
 }
 struct cpcjp_json_val*cpcjp_parse_arr(const char*arr,size_t sz)

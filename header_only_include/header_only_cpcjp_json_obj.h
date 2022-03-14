@@ -266,6 +266,35 @@ struct cpcjp_json_iter *cpcjp_obj_iter(struct cpcjp_json_val *obj)
 	iter->end = cpcds_um_iter_end_cpcjp_json_map(&obj->stuff->obj);
 	return iter;
 }
+int cpcjp_list_merge(struct cpcjp_json_val *to, struct cpcjp_json_val *val)
+{
+	if(to->type == CPCJP_LIST && val->type == CPCJP_LIST)
+	{
+		size_t sz = cpcjp_val_size(val);
+		for(size_t i = 0; i < sz; ++i)
+			cpcjp_insert_val_into_list(to, cpcjp_val_size(to), cpcjp_copy_val(cpcjp_list_get(val, i)));
+		return 0;
+	}
+	else
+		return-1;
+}
+int cpcjp_obj_merge(struct cpcjp_json_val *to, struct cpcjp_json_val *val)
+{
+	if(to->type == CPCJP_OBJ && val->type == CPCJP_OBJ)
+	{
+		struct cpcjp_json_iter *it = cpcjp_obj_iter(val);
+		struct cppstring k;
+		for(; !cpcjp_iter_ended(it); cpcjp_iter_next(it))
+		{
+			k = cpcjp_iter_key(it);
+			cpcjp_insert_val_into_obj(to, cstr(&k), cpcjp_copy_val(cpcjp_iter_val(it)));
+		}
+		cpcjp_destr_iter(it);
+		return 0;
+	}
+	else
+		return-1;
+}
 void cpcjp_list_clear(struct cpcjp_json_val* list)
 {
 	for(size_t i = 0; i < list->stuff->list.size; ++i)
@@ -451,7 +480,7 @@ void cpcjp_dump_obj_into_stream(cpcio_ostream os, struct cpcjp_json_val *val)
 	cpcjp_make_cdh(tmp,val,DUMP_HELPER_PENDING);
 	tmp.is_self_containing=false;
 	cpcds_vec_append_single_cpcjp_dump_helper(stk,tmp);
-	bool __comma=false;
+	bool comma=false;
 	struct cppstring tmps;
 	cpcjp_json_bool tmpb;
 	cpcjp_json_num tmpn;
@@ -462,14 +491,14 @@ void cpcjp_dump_obj_into_stream(cpcio_ostream os, struct cpcjp_json_val *val)
 	while(stk->size > 0)
 	{
 		tmp=cpcds_vec_pop_end_cpcjp_dump_helper(stk);
-		if(__comma&&tmp.status == DUMP_HELPER_PENDING)
+		if(comma&&tmp.status == DUMP_HELPER_PENDING)
 		{
 			cpcio_putc_os(os,COMMA);
 			cpcio_putc_os(os,' ');
 		}
 		else
 		{
-			__comma=true;
+			comma=true;
 		}
 		if(stk->size>0&&tmp.status==DUMP_HELPER_PENDING&&tmp.name!=NULL)
 		{
@@ -535,7 +564,7 @@ void cpcjp_dump_obj_into_stream(cpcio_ostream os, struct cpcjp_json_val *val)
 
 					// add the left square bracket
 					cpcio_putc_os(os,LSQRBR);
-					__comma = false;
+					comma = false;
 				}
 				break;
 			case CPCJP_OBJ:
@@ -575,7 +604,7 @@ void cpcjp_dump_obj_into_stream(cpcio_ostream os, struct cpcjp_json_val *val)
 
 					// add the left brace
 					cpcio_putc_os(os,LBRACE);
-					__comma = false;
+					comma = false;
 				}
 				break;
 		}
