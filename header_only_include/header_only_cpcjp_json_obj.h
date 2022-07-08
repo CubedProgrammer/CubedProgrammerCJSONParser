@@ -198,7 +198,9 @@ struct cpcjp_json_val *cpcjp_malloc(void)
 }
 void cpcjp_erase_from_list(struct cpcjp_json_val *list, size_t ind)
 {
-	cpcjp_free_val(cpcds_vec_get_at_cpcjp_json_list(&list->stuff->list, ind));
+	struct cpcjp_json_val *v = cpcds_vec_get_at_cpcjp_json_list(&list->stuff->list, ind);
+	if(v != list)
+		cpcjp_free_val(v);
 	cpcds_vec_erase_single_cpcjp_json_list(&list->stuff->list, ind);
 }
 void cpcjp_erase_value_from_list(struct cpcjp_json_val *list, struct cpcjp_json_val *val)
@@ -209,7 +211,9 @@ void cpcjp_erase_value_from_list(struct cpcjp_json_val *list, struct cpcjp_json_
 void cpcjp_erase_from_obj(struct cpcjp_json_val *obj, const char *name)
 {
 	cppstring namestr = mk_from_cstr(name);
-	cpcjp_free_val(cpcds_um_get_cpcjp_json_map(&obj->stuff->obj, namestr));
+	struct cpcjp_json_val *v = cpcds_um_get_cpcjp_json_map(&obj->stuff->obj, namestr);
+	if(v != obj)
+		cpcjp_free_val(v);
 	cpcds_destr_str(cpcds_um_erase_key_cpcjp_json_map(&obj->stuff->obj, namestr));
 	cpcds_destr_str(namestr);
 }
@@ -466,8 +470,9 @@ struct cppstring cpcjp_dump_obj(struct cpcjp_json_val*val)
 {
 	cpcio_ostream os=cpcio_open_osstream();
 	cpcjp_dump_obj_into_stream(os,val);
-	struct cppstring str=mk_from_cstr(cpcio_oss_str(os));
-	cpcio_close_ostream(os);
+	struct cppstring str;
+	str.bytes=cpcio_oss_str(os);
+	str.len=strlen(str.bytes);
 	return str;
 }
 void cpcjp_dump_obj_into_stream(cpcio_ostream os, struct cpcjp_json_val *val)
